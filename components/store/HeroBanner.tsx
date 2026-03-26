@@ -148,7 +148,7 @@ export default function HeroBanner() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.45 }}
-                className="text-sm sm:text-base md:text-lg mb-9 md:mb-10 leading-relaxed max-w-lg opacity-70"
+                className="text-base md:text-lg mb-9 md:mb-10 leading-8 max-w-xl font-medium opacity-85"
                 style={{ color: slide.textColor }}
               >
                 {slide.subtitle}
@@ -163,7 +163,7 @@ export default function HeroBanner() {
                 <MagneticButton className="px-0 py-0">
                   <Link
                     href={slide.link}
-                    className="group flex items-center gap-2 px-7 sm:px-9 py-4 font-bold text-xs sm:text-sm tracking-[0.16em] transition-all duration-300 hover:gap-4"
+                    className="group flex items-center gap-2 px-7 sm:px-9 py-4 font-extrabold text-xs sm:text-sm tracking-[0.12em] rounded-full transition-all duration-300 hover:gap-4"
                     style={{ background: slide.accent, color: "#FFFFFF" }}
                   >
                     {slide.cta}
@@ -173,7 +173,7 @@ export default function HeroBanner() {
                 <MagneticButton className="px-0 py-0">
                   <Link
                     href={slide.link2}
-                    className="px-7 sm:px-9 py-4 font-bold text-xs sm:text-sm tracking-[0.16em] border-2 transition-all duration-300 hover:opacity-70"
+                    className="px-7 sm:px-9 py-4 font-extrabold text-xs sm:text-sm tracking-[0.12em] rounded-full border-2 transition-all duration-300 hover:opacity-70"
                     style={{ borderColor: slide.textColor, color: slide.textColor }}
                   >
                     {slide.cta2}
@@ -185,12 +185,13 @@ export default function HeroBanner() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.65 }}
-                className="flex flex-wrap gap-x-8 gap-y-4 md:gap-x-12 md:gap-y-5"
+                className="flex flex-wrap gap-x-8 gap-y-4 md:gap-x-12 md:gap-y-5 border-t pt-6 md:pt-7"
+                style={{ borderColor: `${slide.textColor}24` }}
               >
                 {[slide.stat1, slide.stat2, "₹599 Free Ship"].map((stat, i) => (
-                  <div key={i}>
-                    <div className="w-6 h-0.5 mb-2" style={{ background: slide.accent }} />
-                    <p className="text-xs font-semibold tracking-widest opacity-60" style={{ color: slide.textColor }}>
+                  <div key={i} className="min-w-[132px]">
+                    <div className="w-7 h-0.5 mb-2.5" style={{ background: slide.accent }} />
+                    <p className="text-[11px] font-bold tracking-[0.12em] uppercase opacity-80" style={{ color: slide.textColor }}>
                       {stat}
                     </p>
                   </div>
