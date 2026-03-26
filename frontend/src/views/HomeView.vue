@@ -142,11 +142,11 @@ const categories = [
   { name: 'T-Shirts', emoji: '👕', query: 'T-Shirts', gradient: 'bg-gradient-to-br from-orange-300 to-orange-500' },
   { name: 'Shirts', emoji: '👔', query: 'Shirts', gradient: 'bg-gradient-to-br from-blue-300 to-blue-500' },
   { name: 'Joggers', emoji: '🩳', query: 'Joggers', gradient: 'bg-gradient-to-br from-purple-300 to-purple-600' },
+  { name: 'Shorts', emoji: '🩳', query: 'Shorts', gradient: 'bg-gradient-to-br from-cyan-300 to-cyan-500' },
+  { name: 'Hoodies', emoji: '🧥', query: 'Hoodies', gradient: 'bg-gradient-to-br from-indigo-300 to-indigo-600' },
+  { name: 'Jackets', emoji: '🧥', query: 'Jackets', gradient: 'bg-gradient-to-br from-slate-300 to-slate-600' },
   { name: 'Sneakers', emoji: '👟', query: 'Sneakers', gradient: 'bg-gradient-to-br from-green-300 to-green-600' },
-  { name: 'Phone Cases', emoji: '📱', query: 'Phone Cases', gradient: 'bg-gradient-to-br from-pink-300 to-pink-500' },
-  { name: 'Posters', emoji: '🖼️', query: 'Posters', gradient: 'bg-gradient-to-br from-red-300 to-red-500' },
-  { name: 'Mugs', emoji: '☕', query: 'Mugs', gradient: 'bg-gradient-to-br from-yellow-300 to-yellow-500' },
-  { name: 'Accessories', emoji: '💼', query: 'Accessories', gradient: 'bg-gradient-to-br from-gray-300 to-gray-500' }
+  { name: 'Track Pants', emoji: '👖', query: 'Joggers', gradient: 'bg-gradient-to-br from-teal-300 to-teal-600' }
 ]
 
 const fandoms = [

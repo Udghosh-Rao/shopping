@@ -115,7 +115,7 @@
             placeholder="Search products..."
           />
           <div class="mt-4 flex gap-2 flex-wrap">
-            <button v-for="tag in ['Demon Slayer','Marvel','Sneakers']" :key="tag" @click="quickSearch(tag)" class="px-3 py-1 rounded-full bg-white/10 text-white text-sm">{{ tag }}</button>
+            <button v-for="tag in ['Oversized Tee','Hoodie','Sneakers']" :key="tag" @click="quickSearch(tag)" class="px-3 py-1 rounded-full bg-white/10 text-white text-sm">{{ tag }}</button>
           </div>
           <div v-if="searchResults.length" class="bg-white rounded-xl mt-5 p-2 max-h-80 overflow-auto">
             <button v-for="item in searchResults" :key="item.id" @click="openProduct(item.id)" class="w-full text-left px-3 py-2 hover:bg-gray-100 rounded-lg flex justify-between">
@@ -178,11 +178,11 @@ const announcements = [
   '🔥 NEW DROPS EVERY WEEK — SHOP THE LATEST'
 ]
 
-const categories = ['All', 'T-Shirts', 'Shirts', 'Joggers', 'Shorts', 'Sneakers', 'Accessories', 'Mugs', 'Posters']
+const categories = ['All', 'T-Shirts', 'Shirts', 'Joggers', 'Shorts', 'Hoodies', 'Jackets', 'Sneakers']
 const mobileSections = [
-  { title: 'Men', items: ['T-Shirts', 'Shirts', 'Joggers', 'Sneakers'] },
-  { title: 'Women', items: ['T-Shirts', 'Shirts', 'Joggers'] },
-  { title: 'Collections', items: ['Posters', 'Mugs', 'Accessories'] }
+  { title: 'Men', items: ['T-Shirts', 'Shirts', 'Joggers', 'Shorts', 'Hoodies', 'Jackets', 'Sneakers'] },
+  { title: 'Women', items: ['T-Shirts', 'Shirts', 'Joggers', 'Shorts', 'Hoodies', 'Jackets'] },
+  { title: 'Collections', items: ['T-Shirts', 'Shirts', 'Hoodies'] }
 ]
 
 const showAnnouncement = ref(localStorage.getItem('hide_announcement') !== '1')

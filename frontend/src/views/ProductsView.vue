@@ -126,7 +126,7 @@ const sortBy = ref('newest')
 const currentPage = ref(1)
 const totalPages = ref(1)
 
-const categories = ['T-Shirts', 'Shirts', 'Joggers', 'Sneakers', 'Phone Cases', 'Posters', 'Accessories', 'Mugs']
+const categories = ['T-Shirts', 'Shirts', 'Joggers', 'Shorts', 'Hoodies', 'Jackets', 'Sneakers']
 
 const fetchProducts = async () => {
   loading.value = true

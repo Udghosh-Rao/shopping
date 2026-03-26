@@ -17,6 +17,8 @@ CORS(app, origins=["http://localhost:5173"])
 db.init_app(app)
 jwt = JWTManager(app)
 
+APPAREL_CATEGORIES = ["T-Shirts", "Shirts", "Joggers", "Shorts", "Hoodies", "Jackets", "Sneakers"]
+
 
 @app.after_request
 def add_headers(response):
@@ -106,7 +108,7 @@ def get_products():
     page = request.args.get("page", 1, type=int)
     per_page = request.args.get("per_page", 12, type=int)
 
-    query = Product.query
+    query = Product.query.filter(Product.category.in_(APPAREL_CATEGORIES))
 
     if category:
         query = query.filter(Product.category == category)
@@ -167,7 +169,7 @@ def get_products_bulk():
     if not ids:
         return jsonify([]), 200
 
-    products = Product.query.filter(Product.id.in_(ids)).all()
+    products = Product.query.filter(Product.id.in_(ids), Product.category.in_(APPAREL_CATEGORIES)).all()
     product_map = {p.id: p.to_dict() for p in products}
     ordered = [product_map[i] for i in ids if i in product_map]
     return jsonify(ordered), 200
@@ -175,7 +177,9 @@ def get_products_bulk():
 
 @app.get("/api/products/<int:product_id>")
 def get_product(product_id):
-    product = Product.query.get(product_id)
+    product = Product.query.filter(
+        Product.id == product_id, Product.category.in_(APPAREL_CATEGORIES)
+    ).first()
     if not product:
         return jsonify({"error": "Product not found"}), 404
     return jsonify(product.to_dict()), 200
@@ -184,7 +188,10 @@ def get_product(product_id):
 @app.get("/api/products/featured")
 def get_featured_products():
     products = (
-        Product.query.filter(or_(Product.badge == "BESTSELLER", Product.badge == "NEW"))
+        Product.query.filter(
+            or_(Product.badge == "BESTSELLER", Product.badge == "NEW"),
+            Product.category.in_(APPAREL_CATEGORIES),
+        )
         .order_by(Product.rating.desc())
         .limit(8)
         .all()
@@ -194,21 +201,38 @@ def get_featured_products():
 
 @app.get("/api/products/related/<int:product_id>")
 def get_related_products(product_id):
-    product = Product.query.get(product_id)
+    product = Product.query.filter(
+        Product.id == product_id, Product.category.in_(APPAREL_CATEGORIES)
+    ).first()
     if not product:
         return jsonify({"error": "Product not found"}), 404
 
-    related = Product.query.filter(Product.category == product.category, Product.id != product_id).limit(6).all()
+    related = (
+        Product.query.filter(
+            Product.category == product.category,
+            Product.id != product_id,
+            Product.category.in_(APPAREL_CATEGORIES),
+        )
+        .limit(6)
+        .all()
+    )
     return jsonify([p.to_dict() for p in related]), 200
 
 
 @app.get("/api/flash-sale")
 def get_flash_sale():
-    sale_products = Product.query.filter(Product.badge == "SALE").all()
+    sale_products = Product.query.filter(
+        Product.badge == "SALE", Product.category.in_(APPAREL_CATEGORIES)
+    ).all()
     if len(sale_products) >= 4:
         selected = sample(sale_products, 4)
     else:
-        selected = Product.query.order_by(desc(Product.discount_percent)).limit(4).all()
+        selected = (
+            Product.query.filter(Product.category.in_(APPAREL_CATEGORIES))
+            .order_by(desc(Product.discount_percent))
+            .limit(4)
+            .all()
+        )
 
     ends_at = (datetime.utcnow() + timedelta(hours=24)).isoformat() + "Z"
     return jsonify({"ends_at": ends_at, "products": [p.to_dict() for p in selected]}), 200
@@ -226,13 +250,23 @@ def check_delivery():
 
 @app.get("/api/categories")
 def get_categories():
-    categories = db.session.query(Product.category).distinct().all()
+    categories = (
+        db.session.query(Product.category)
+        .filter(Product.category.in_(APPAREL_CATEGORIES))
+        .distinct()
+        .all()
+    )
     return jsonify([c[0] for c in categories]), 200
 
 
 @app.get("/api/subcategories")
 def get_subcategories():
-    subcategories = db.session.query(Product.subcategory).distinct().filter(Product.subcategory.isnot(None)).all()
+    subcategories = (
+        db.session.query(Product.subcategory)
+        .filter(Product.subcategory.isnot(None), Product.category.in_(APPAREL_CATEGORIES))
+        .distinct()
+        .all()
+    )
     return jsonify([s[0] for s in subcategories]), 200
 
 

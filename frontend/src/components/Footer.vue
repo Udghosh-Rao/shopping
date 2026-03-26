@@ -21,7 +21,7 @@
         <div>
           <p class="text-orange-400 text-xs tracking-[0.2em] uppercase mb-3">Shop</p>
           <ul class="space-y-2 text-sm text-gray-400">
-            <li v-for="item in ['T-Shirts','Shirts','Joggers','Sneakers','Accessories','Phone Cases','Mugs','Posters']" :key="item">
+            <li v-for="item in ['T-Shirts','Shirts','Joggers','Shorts','Hoodies','Jackets','Sneakers']" :key="item">
               <RouterLink :to="`/products?category=${encodeURIComponent(item)}`" class="hover:text-orange-400">{{ item }}</RouterLink>
             </li>
           </ul>
@@ -30,7 +30,7 @@
         <div>
           <p class="text-orange-400 text-xs tracking-[0.2em] uppercase mb-3">Collections</p>
           <ul class="space-y-2 text-sm text-gray-400">
-            <li v-for="item in ['Anime','Marvel & DC','Music Bands','Sports','Harry Potter','Star Wars','NASA','Friends TV']" :key="item">
+            <li v-for="item in ['Summer 2026','Oversized Tees','Streetwear','Athleisure','Winter Layers','Essentials','Limited Drops']" :key="item">
               <RouterLink to="/products" class="hover:text-orange-400">{{ item }}</RouterLink>
             </li>
           </ul>

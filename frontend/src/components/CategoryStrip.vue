@@ -33,12 +33,12 @@ const categories = [
   { value: null, label: 'All', icon: '🛍️' },
   { value: 'T-Shirts', label: 'T-Shirts', icon: '👕' },
   { value: 'Shirts', label: 'Shirts', icon: '👔' },
-  { value: 'Sneakers', label: 'Sneakers', icon: '👟' },
   { value: 'Joggers', label: 'Joggers', icon: '👖' },
-  { value: 'Accessories', label: 'Accessories', icon: '🎒' },
-  { value: 'Phone Cases', label: 'Phone Cases', icon: '📱' },
-  { value: 'Posters', label: 'Posters', icon: '🖼️' },
-  { value: 'Mugs', label: 'Mugs', icon: '☕' }
+  { value: 'Shorts', label: 'Shorts', icon: '🩳' },
+  { value: 'Hoodies', label: 'Hoodies', icon: '🧥' },
+  { value: 'Jackets', label: 'Jackets', icon: '🧥' },
+  { value: 'Sneakers', label: 'Sneakers', icon: '👟' },
+  { value: 'Track Pants', label: 'Track Pants', icon: '👖' }
 ]
 
 const selectCategory = (value) => {
