@@ -2,23 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import dbConnect from '@/lib/mongodb';
 import Order from '@/models/Order';
-import { isMongoConfigured } from '@/lib/mongodb';
-import { updateDemoOrder } from '@/lib/demoBackend';
 
 export async function POST(req: NextRequest) {
   try {
     const { orderId, razorpayOrderId, razorpayPaymentId, razorpaySignature } = await req.json();
 
-    // Demo mode: mark as paid without Razorpay verification.
-    if (!isMongoConfigured()) {
-      if (orderId) {
-        updateDemoOrder(String(orderId), {
-          paymentStatus: "paid",
-          razorpayOrderId,
-          razorpayPaymentId,
-        });
-      }
-      return NextResponse.json({ success: true });
+    if (!orderId || !razorpayOrderId || !razorpayPaymentId || !razorpaySignature) {
+      return NextResponse.json({ success: false, error: 'Missing payment details' }, { status: 400 });
     }
 
     await dbConnect();

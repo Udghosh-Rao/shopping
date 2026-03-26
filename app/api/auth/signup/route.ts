@@ -2,8 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import dbConnect from '@/lib/mongodb';
 import User from '@/models/User';
-import { isMongoConfigured } from '@/lib/mongodb';
-import { upsertDemoUser } from '@/lib/demoBackend';
 
 export async function POST(req: NextRequest) {
   try {
@@ -17,30 +15,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Password must be at least 6 characters' }, { status: 400 });
     }
 
-    // Demo mode: create a local user record (no MongoDB).
-    if (!isMongoConfigured()) {
-      const demoEmail = String(email).trim().toLowerCase();
-      const role = demoEmail === (process.env.ADMIN_EMAIL || "admin@example.com").trim().toLowerCase() ? 'admin' : 'user';
-      const user = upsertDemoUser({
-        email: demoEmail,
-        name: String(name),
-        role,
-      });
-
-      return NextResponse.json({
-        message: 'Account created successfully',
-        user: {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-        },
-      });
-    }
-
     await dbConnect();
 
     // Check if user already exists
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ email: email.toLowerCase() });
     if (existingUser) {
       return NextResponse.json({ error: 'Email already registered' }, { status: 400 });
     }
@@ -51,9 +29,9 @@ export async function POST(req: NextRequest) {
     // Create user
     const user = await User.create({
       name,
-      email,
+      email: email.toLowerCase(),
       password: hashedPassword,
-      role: email === process.env.ADMIN_EMAIL ? 'admin' : 'user',
+      role: email.toLowerCase() === (process.env.ADMIN_EMAIL || "").toLowerCase() ? 'admin' : 'user',
     });
 
     return NextResponse.json({

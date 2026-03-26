@@ -1,23 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/mongodb";
 import Coupon from "@/models/Coupon";
-import { applyDemoCoupon } from "@/lib/demoBackend";
-import { isMongoConfigured } from "@/lib/mongodb";
 
 export async function POST(req: NextRequest) {
   const { code, orderAmount } = await req.json();
 
   if (!code || typeof code !== "string") {
     return NextResponse.json({ error: "Coupon code is required" }, { status: 400 });
-  }
-
-  // Demo mode fallback.
-  if (!isMongoConfigured()) {
-    const result = applyDemoCoupon(code, Number(orderAmount));
-    if (!result.ok) {
-      return NextResponse.json({ error: result.error }, { status: 400 });
-    }
-    return NextResponse.json({ discount: result.discount, code: result.code, type: result.type });
   }
 
   await dbConnect();

@@ -3,10 +3,10 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import dbConnect from '@/lib/mongodb';
 import Order from '@/models/Order';
+import Product from '@/models/Product';
+import Coupon from '@/models/Coupon';
 import { getRazorpay } from '@/lib/razorpay';
 import mongoose from 'mongoose';
-import { addDemoOrder } from '@/lib/demoBackend';
-import { isMongoConfigured } from '@/lib/mongodb';
 
 export async function POST(req: NextRequest) {
   try {
@@ -16,52 +16,78 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { amount, items, shippingAddress, deliveryCharge, discount } = body;
+    const { items, shippingAddress, deliveryCharge = 0, discount = 0, couponCode = null } = body;
+
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      return NextResponse.json({ error: 'No items in cart' }, { status: 400 });
+    }
 
     const razorpay = getRazorpay();
-    const mongoOk = isMongoConfigured();
-
-    // Demo mode: create a local order and mark as paid.
-    if (!mongoOk || !razorpay) {
-      const userId = (session.user as Record<string, unknown>).id as string;
-      const orderId = `demo-order-${Date.now()}`;
-
-      addDemoOrder({
-        _id: orderId,
-        userId,
-        items: (items as Array<Record<string, unknown>>).map((it) => ({
-          name: String(it.name ?? ""),
-          image: String(it.image ?? ""),
-          size: String(it.size ?? ""),
-          quantity: Number(it.quantity ?? 1),
-          price:
-            typeof it.price === "number"
-              ? it.price
-              : typeof it.discountPrice === "number"
-                ? it.discountPrice
-                : 0,
-        })),
-        shippingAddress,
-        totalAmount: amount,
-        deliveryCharge: deliveryCharge || 0,
-        discount: discount || 0,
-        paymentStatus: "paid",
-        orderStatus: "Processing",
-        razorpayOrderId: "demo",
-      });
-
-      return NextResponse.json({
-        orderId,
-        razorpayOrderId: "demo",
-        amount: amount * 100,
-      });
+    if (!razorpay) {
+      return NextResponse.json({ error: 'Payment gateway not configured' }, { status: 500 });
     }
 
     await dbConnect();
 
+    // Fetch actual product prices from database
+    const productIds = items.map((item: Record<string, unknown>) => {
+      const id = item.productId;
+      return typeof id === 'string' ? new mongoose.Types.ObjectId(id) : id;
+    }) as mongoose.Types.ObjectId[];
+    const dbProducts = await Product.find({ _id: { $in: productIds } });
+
+    if (dbProducts.length === 0) {
+      return NextResponse.json({ error: 'Products not found' }, { status: 400 });
+    }
+
+    // Recalculate amount from actual DB prices (prevent manipulation)
+    let calculatedAmount = 0;
+    for (const item of items as Array<Record<string, unknown>>) {
+      const product = dbProducts.find(p => p._id.toString() === item.productId);
+      if (!product) {
+        return NextResponse.json({ error: `Product ${item.productId} not found` }, { status: 400 });
+      }
+      const price = product.discountPrice || product.price;
+      const quantity = Number(item.quantity) || 1;
+      calculatedAmount += price * quantity;
+    }
+
+    // Add delivery charge
+    calculatedAmount += Number(deliveryCharge) || 0;
+
+    // Re-validate and apply coupon server-side (prevent client-side manipulation)
+    let validatedDiscount = 0;
+    if (couponCode) {
+      const coupon = await Coupon.findOne({
+        code: String(couponCode).toUpperCase(),
+        isActive: true,
+        $or: [{ expiresAt: { $gt: new Date() } }, { expiresAt: null }],
+      });
+
+      if (coupon) {
+        // Verify coupon constraints
+        if (coupon.usedCount < coupon.maxUses && calculatedAmount >= coupon.minOrderAmount) {
+          validatedDiscount =
+            coupon.discountType === "percentage"
+              ? Math.floor((calculatedAmount * coupon.discountValue) / 100)
+              : coupon.discountValue;
+        }
+      }
+    } else {
+      // If no coupon code provided, use the discount value sent (for non-coupon discounts like admin discounts)
+      validatedDiscount = Math.min(Number(discount) || 0, calculatedAmount);
+    }
+
+    calculatedAmount -= validatedDiscount;
+
+    // Ensure amount is positive
+    if (calculatedAmount <= 0) {
+      return NextResponse.json({ error: 'Invalid order amount' }, { status: 400 });
+    }
+
     // Create Razorpay order (amount in paise)
     const razorpayOrder = await razorpay.orders.create({
-      amount: amount * 100,
+      amount: Math.round(calculatedAmount * 100),
       currency: 'INR',
       receipt: `order_${Date.now()}`,
     });
@@ -71,9 +97,10 @@ export async function POST(req: NextRequest) {
       userId: new mongoose.Types.ObjectId((session.user as Record<string, unknown>).id as string),
       items,
       shippingAddress,
-      totalAmount: amount,
+      totalAmount: calculatedAmount,
       deliveryCharge: deliveryCharge || 0,
-      discount: discount || 0,
+      discount: validatedDiscount,
+      couponCode: couponCode || null,
       paymentStatus: 'pending',
       orderStatus: 'Processing',
       razorpayOrderId: razorpayOrder.id,
