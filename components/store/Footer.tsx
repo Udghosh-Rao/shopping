@@ -117,11 +117,18 @@ export default function Footer() {
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3 text-xs text-gray-500">
           <p>© 2026 DripStore. All rights reserved. Made with ❤️ in India.</p>
           <div className="flex flex-wrap gap-x-4 gap-y-2 justify-center">
-            {["Privacy Policy", "Terms", "Shipping Policy", "Refund Policy"].map((t) => (
-              <Link key={t} href="#" className="hover:text-white transition-colors">
-                {t}
-              </Link>
-            ))}
+            <Link href="/legal/privacy-policy" className="hover:text-white transition-colors">
+              Privacy Policy
+            </Link>
+            <Link href="/legal/terms" className="hover:text-white transition-colors">
+              Terms
+            </Link>
+            <a href="#" className="hover:text-white transition-colors">
+              Shipping Policy
+            </a>
+            <a href="#" className="hover:text-white transition-colors">
+              Refund Policy
+            </a>
           </div>
         </div>
       </div>
