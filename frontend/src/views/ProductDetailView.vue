@@ -6,7 +6,7 @@
       <nav class="text-xs font-bold tracking-widest uppercase text-gray-500 mb-8 flex gap-2">
         <RouterLink to="/" class="hover:text-neon-orange transition-colors">HOME</RouterLink>
         <span>/</span>
-        <RouterLink to="/shop" class="hover:text-neon-orange transition-colors">SHOP</RouterLink>
+        <RouterLink to='/products' class="hover:text-neon-orange transition-colors">SHOP</RouterLink>
         <span>/</span>
         <span class="text-white">{{ product.name }}</span>
       </nav>

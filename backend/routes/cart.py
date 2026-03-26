@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 
-from models import Cart, Product, db
+from models import CartItem, Product, db
 
 
 cart_bp = Blueprint("cart", __name__, url_prefix="/api/cart")
@@ -15,7 +15,7 @@ def _current_user_id() -> int:
 @jwt_required()
 def get_cart():
     user_id = _current_user_id()
-    items = Cart.query.filter_by(user_id=user_id).all()
+    items = CartItem.query.filter_by(user_id=user_id).all()
     return jsonify([item.to_dict() for item in items]), 200
 
 
@@ -34,11 +34,11 @@ def add_to_cart():
     if not product:
         return jsonify({"message": "Product not found"}), 404
 
-    item = Cart.query.filter_by(user_id=user_id, product_id=product_id).first()
+    item = CartItem.query.filter_by(user_id=user_id, product_id=product_id).first()
     if item:
         item.quantity += quantity
     else:
-        item = Cart(user_id=user_id, product_id=product_id, quantity=quantity)
+        item = CartItem(user_id=user_id, product_id=product_id, quantity=quantity)
         db.session.add(item)
 
     if item.quantity > product.stock:
@@ -52,7 +52,7 @@ def add_to_cart():
 @jwt_required()
 def update_cart(cart_id):
     user_id = _current_user_id()
-    item = Cart.query.filter_by(id=cart_id, user_id=user_id).first()
+    item = CartItem.query.filter_by(id=cart_id, user_id=user_id).first()
     if not item:
         return jsonify({"message": "Cart item not found"}), 404
 
@@ -73,7 +73,7 @@ def update_cart(cart_id):
 @jwt_required()
 def remove_cart_item(cart_id):
     user_id = _current_user_id()
-    item = Cart.query.filter_by(id=cart_id, user_id=user_id).first()
+    item = CartItem.query.filter_by(id=cart_id, user_id=user_id).first()
     if not item:
         return jsonify({"message": "Cart item not found"}), 404
 
@@ -86,6 +86,6 @@ def remove_cart_item(cart_id):
 @jwt_required()
 def clear_cart():
     user_id = _current_user_id()
-    Cart.query.filter_by(user_id=user_id).delete()
+    CartItem.query.filter_by(user_id=user_id).delete()
     db.session.commit()
     return jsonify({"message": "Cart cleared"}), 200

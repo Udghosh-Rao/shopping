@@ -23,7 +23,7 @@
           Home
         </RouterLink>
         <RouterLink 
-          to="/shop" 
+          to='/products' 
           class="nav-link relative font-bold text-xs tracking-widest uppercase text-gray-300 hover:text-white transition-colors"
           active-class="active text-white"
         >

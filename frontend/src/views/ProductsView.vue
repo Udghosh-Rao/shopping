@@ -167,7 +167,7 @@ const clearFilters = () => {
   sortBy.value = 'newest'
   searchQuery.value = ''
   currentPage.value = 1
-  router.push('/shop')
+  router.push('/products')
   fetchProducts()
 }
 

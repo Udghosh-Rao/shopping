@@ -54,6 +54,7 @@ class Product(db.Model):
     badge = db.Column(db.String(20), nullable=True)  # NEW | BESTSELLER | SALE | HOT | LIMITED
     sizes = db.Column(db.String(200), nullable=True)  # comma-separated: XS,S,M,L,XL,XXL
     colors = db.Column(db.String(200), nullable=True)  # comma-separated: Black,White,Navy
+    stock = db.Column(db.Integer, nullable=False, default=100)  # Stock quantity
     in_stock = db.Column(db.Boolean, nullable=False, default=True)
     rating = db.Column(db.Float, nullable=False, default=4.0)
     reviews = db.Column(db.Integer, nullable=False, default=0)
@@ -74,6 +75,7 @@ class Product(db.Model):
             "badge": self.badge,
             "sizes": self.sizes.split(",") if self.sizes else [],
             "colors": self.colors.split(",") if self.colors else [],
+            "stock": self.stock,
             "in_stock": self.in_stock,
             "rating": self.rating,
             "reviews": self.reviews,
