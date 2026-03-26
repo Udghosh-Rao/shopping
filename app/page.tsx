@@ -7,7 +7,6 @@ import ReviewsSection from "@/components/store/ReviewsSection";
 import OfferBanner from "@/components/store/OfferBanner";
 import AnimatedCounter from "@/components/ui/AnimatedCounter";
 import Lookbook from "@/components/store/Lookbook";
-import CategoryCards from "@/components/store/CategoryCards";
 
 export default function HomePage() {
   return (
@@ -32,7 +31,6 @@ export default function HomePage() {
         </div>
       </div>
 
-      <CategoryCards />
       <NewArrivals />
       <OfferBanner />
       <FeaturedProducts />

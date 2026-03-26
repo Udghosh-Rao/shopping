@@ -5,7 +5,6 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import ProductCard from "./ProductCard";
 import { useEffect, useState } from "react";
-import RevealText from "@/components/ui/RevealText";
 import MagneticButton from "@/components/ui/MagneticButton";
 
 interface Product {
@@ -26,17 +25,10 @@ export default function NewArrivals() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [apiFailed, setApiFailed] = useState(false);
-  const [activeFilter, setActiveFilter] = useState("All");
-
-  const filters = ["All", "Men", "Women", "Sneakers"];
 
   useEffect(() => {
     void Promise.resolve().then(() => setLoading(true));
-    const gender = activeFilter === "All" ? "" : activeFilter === "Sneakers" ? "" : activeFilter;
-    const category = activeFilter === "Sneakers" ? "Shoes" : "";
     const params = new URLSearchParams();
-    if (gender) params.set("gender", gender);
-    if (category) params.set("category", category);
     // Ensure we actually request "new arrivals" from the API.
     params.set("newArrivals", "true");
     params.set("limit", "8");
@@ -53,34 +45,10 @@ export default function NewArrivals() {
         setApiFailed(true);
       })
       .finally(() => setLoading(false));
-  }, [activeFilter]);
+  }, []);
 
   return (
     <section className="py-14 md:py-20 px-4 md:px-8 max-w-7xl mx-auto">
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 md:mb-10">
-        <div>
-          <p className="text-[#E63946] text-xs font-bold tracking-[0.3em] mb-2">JUST DROPPED</p>
-          <RevealText text="NEW ARRIVALS" className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight leading-none" />
-        </div>
-
-        <div className="flex gap-2 flex-wrap">
-          {filters.map((f) => (
-            <button
-              key={f}
-              onClick={() => setActiveFilter(f)}
-              className="relative px-5 py-2 text-xs font-bold tracking-widest rounded-full transition-all duration-200"
-              style={{
-                background: activeFilter === f ? "#0A0A0A" : "transparent",
-                color: activeFilter === f ? "#FFFFFF" : "#6B7280",
-                border: activeFilter === f ? "2px solid #0A0A0A" : "2px solid #E5E7EB",
-              }}
-            >
-              {f}
-            </button>
-          ))}
-        </div>
-      </div>
-
       {loading ? (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {Array.from({ length: 8 }).map((_, i) => (
