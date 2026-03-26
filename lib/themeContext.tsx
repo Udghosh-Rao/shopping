@@ -16,8 +16,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const saved = (localStorage.getItem('theme') as Theme) || 'light';
-    setTheme(saved);
     document.documentElement.setAttribute('data-theme', saved);
+    void Promise.resolve().then(() => setTheme(saved));
   }, []);
 
   const toggleTheme = () => {

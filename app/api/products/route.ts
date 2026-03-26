@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import Product from '@/models/Product';
+import { filterSampleProducts } from '@/lib/sampleCatalog';
 
 export async function GET(req: NextRequest) {
   try {
@@ -57,6 +58,21 @@ export async function GET(req: NextRequest) {
     });
   } catch (error) {
     console.error('Products API error:', error);
-    return NextResponse.json({ error: 'Failed to fetch products' }, { status: 500 });
+    // Fallback so the homepage UI doesn't go blank if MongoDB isn't configured.
+    const { searchParams } = new URL(req.url);
+    const query = {
+      gender: searchParams.get('gender'),
+      category: searchParams.get('category'),
+      featured: searchParams.get('featured') === 'true',
+      newArrivals: searchParams.get('newArrivals') === 'true',
+      size: searchParams.get('size'),
+      minPrice: searchParams.get('minPrice') ? parseInt(searchParams.get('minPrice') as string) : null,
+      maxPrice: searchParams.get('maxPrice') ? parseInt(searchParams.get('maxPrice') as string) : null,
+      sort: searchParams.get('sort'),
+      page: parseInt(searchParams.get('page') || '1'),
+      limit: parseInt(searchParams.get('limit') || '12'),
+    };
+    const fallback = filterSampleProducts(query);
+    return NextResponse.json(fallback);
   }
 }

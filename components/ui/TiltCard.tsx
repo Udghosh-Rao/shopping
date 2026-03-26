@@ -16,7 +16,8 @@ export default function TiltCard({
   const y = useMotionValue(0);
 
   useEffect(() => {
-    setEnabled(window.matchMedia("(hover: hover) and (pointer: fine)").matches);
+    const enabledNow = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+    void Promise.resolve().then(() => setEnabled(enabledNow));
   }, []);
 
   const xSpring = useSpring(x, { stiffness: 150, damping: 20 });

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCart } from '@/lib/cartStore';
 import { useSession } from 'next-auth/react';
@@ -22,6 +22,7 @@ export default function CheckoutPage() {
   const { data: session } = useSession();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [couponDiscount, setCouponDiscount] = useState(0);
 
   const [form, setForm] = useState({
     fullName: session?.user?.name || '',
@@ -33,8 +34,17 @@ export default function CheckoutPage() {
     pincode: '',
   });
 
+  useEffect(() => {
+    try {
+      const d = localStorage.getItem('coupon_discount');
+      setCouponDiscount(d ? Number(d) || 0 : 0);
+    } catch {
+      // ignore
+    }
+  }, []);
+
   const deliveryCharge = totalPrice > 999 ? 0 : 99;
-  const finalTotal = totalPrice + deliveryCharge;
+  const finalTotal = totalPrice - couponDiscount + deliveryCharge;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -75,6 +85,42 @@ export default function CheckoutPage() {
     setLoading(true);
 
     try {
+      // Demo mode: if Razorpay public key isn't configured, simulate payment success.
+      // This prevents the UI from trying to open Razorpay with an undefined key.
+      const razorpayKey = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
+
+      if (!razorpayKey) {
+        const res = await fetch('/api/payment/create-order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            amount: finalTotal,
+            items: items.map((item) => ({
+              productId: item.productId,
+              name: item.name,
+              image: item.image,
+              size: item.size,
+              quantity: item.quantity,
+              price: item.discountPrice || item.price,
+            })),
+            shippingAddress: form,
+            deliveryCharge,
+            discount: couponDiscount,
+          }),
+        });
+
+        const data = await res.json();
+        if (!data.orderId) {
+          toast.error('Failed to create demo order');
+          setLoading(false);
+          return;
+        }
+
+        clearCart();
+        router.push(`/order-success?orderId=${data.orderId}`);
+        return;
+      }
+
       // Load Razorpay script
       const loaded = await loadRazorpayScript();
       if (!loaded) {
@@ -99,7 +145,7 @@ export default function CheckoutPage() {
           })),
           shippingAddress: form,
           deliveryCharge,
-          discount: 0,
+          discount: couponDiscount,
         }),
       });
 

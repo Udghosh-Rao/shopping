@@ -17,7 +17,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const SidebarContent = () => (
+  const sidebarContent = (
     <>
       <div className="p-6 border-b border-[var(--border)]">
         <Link href="/" className="flex items-center gap-2 text-sm text-muted hover:text-foreground transition-colors mb-4">
@@ -54,7 +54,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* Desktop Sidebar */}
       <aside className="hidden lg:block w-64 border-r border-[var(--border)] bg-[var(--card)] flex-shrink-0">
         <div className="sticky top-20 h-[calc(100vh-5rem)]">
-          <SidebarContent />
+          {sidebarContent}
         </div>
       </aside>
 
@@ -81,7 +81,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   <X className="w-5 h-5" />
                 </button>
               </div>
-              <SidebarContent />
+              {sidebarContent}
             </motion.aside>
           </>
         )}

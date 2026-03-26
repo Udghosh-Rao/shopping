@@ -51,7 +51,7 @@ export default function LoginPage() {
           <h2 className="text-5xl font-black text-white leading-tight mb-4">
             YOUR STYLE,<br />YOUR RULES
           </h2>
-          <p className="text-gray-400 text-lg">India's freshest streetwear brand</p>
+          <p className="text-gray-400 text-lg">India&apos;s freshest streetwear brand</p>
         </div>
       </div>
 

@@ -47,7 +47,7 @@ export default function SignupPage() {
         </Link>
 
         <h1 className="text-3xl font-black tracking-tight mb-1">JOIN THE DRIP 🔥</h1>
-        <p className="text-gray-400 mb-8 text-sm">Create your account — it's free</p>
+        <p className="text-gray-400 mb-8 text-sm">Create your account — it&apos;s free</p>
 
         <button
           onClick={() => signIn("google", { callbackUrl: "/" })}

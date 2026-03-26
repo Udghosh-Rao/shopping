@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Minus, Plus, Trash2, ShoppingBag, ArrowRight, Tag } from 'lucide-react';
 import { useCart } from '@/lib/cartStore';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import RecentlyViewed from '@/components/store/RecentlyViewed';
 
@@ -17,6 +17,21 @@ export default function CartPage() {
 
   const deliveryCharge = totalPrice > 999 ? 0 : 99;
   const finalTotal = totalPrice - discount + deliveryCharge;
+
+  // If cart amount changes after applying a coupon, reset discount to prevent mismatch.
+  useEffect(() => {
+    if (discount > 0) {
+      setDiscount(0);
+      setCouponCode('');
+      try {
+        localStorage.removeItem('coupon_discount');
+        localStorage.removeItem('coupon_code');
+      } catch {
+        // ignore
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [totalPrice]);
 
   const applyCoupon = async () => {
     if (!couponCode.trim()) {
@@ -36,15 +51,45 @@ export default function CartPage() {
       if (!res.ok) {
         toast.error(data.error || 'Invalid coupon code');
         setDiscount(0);
+        try {
+          localStorage.removeItem('coupon_discount');
+          localStorage.removeItem('coupon_code');
+        } catch {
+          // ignore
+        }
       } else {
         setDiscount(data.discount);
+        try {
+          localStorage.setItem('coupon_discount', String(data.discount));
+          localStorage.setItem('coupon_code', String(data.code || couponCode).toUpperCase());
+        } catch {
+          // ignore
+        }
         toast.success(`₹${data.discount} discount applied! 🎉`);
       }
     } catch {
       toast.error('Failed to apply coupon');
       setDiscount(0);
+      try {
+        localStorage.removeItem('coupon_discount');
+        localStorage.removeItem('coupon_code');
+      } catch {
+        // ignore
+      }
     } finally {
       setCouponLoading(false);
+    }
+  };
+
+  const handleClearCart = () => {
+    clearCart();
+    setCouponCode('');
+    setDiscount(0);
+    try {
+      localStorage.removeItem('coupon_discount');
+      localStorage.removeItem('coupon_code');
+    } catch {
+      // ignore
     }
   };
 
@@ -173,7 +218,7 @@ export default function CartPage() {
           </AnimatePresence>
 
           <button
-            onClick={clearCart}
+                onClick={handleClearCart}
             className="text-sm text-muted hover:text-accent transition-colors underline"
           >
             Clear entire cart

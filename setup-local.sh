@@ -64,17 +64,13 @@ if [ "$MONGODB_OK" = true ]; then
     echo "Don't forget to seed the database:"
     echo "Visit: http://localhost:3000/api/seed"
 else
-    echo "❌ MongoDB setup required first"
+    echo "⚠ MongoDB is not configured."
+    echo "  The storefront (home/shop/product pages) runs in demo mode (sample data)."
+    echo "  Some features (login/signup/orders/admin) may not work fully."
     echo ""
-    echo "📖 See LOCAL_SETUP_GUIDE.md for detailed instructions"
-    echo ""
-    echo "Quick MongoDB Setup:"
-    echo "1. Go to: https://www.mongodb.com/cloud/atlas/register"
-    echo "2. Create FREE cluster"
-    echo "3. Create database user (username + password)"
-    echo "4. Whitelist IP: 0.0.0.0/0"
-    echo "5. Get connection string"
-    echo "6. Update MONGODB_URI in .env.local"
+    echo "✅ You can still run:"
+    echo "Run: npm run dev"
+    echo "Then visit: http://localhost:3000"
 fi
 
 echo ""

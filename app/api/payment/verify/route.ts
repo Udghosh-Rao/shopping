@@ -2,17 +2,36 @@ import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import dbConnect from '@/lib/mongodb';
 import Order from '@/models/Order';
+import { isMongoConfigured } from '@/lib/mongodb';
+import { updateDemoOrder } from '@/lib/demoBackend';
 
 export async function POST(req: NextRequest) {
   try {
+    const { orderId, razorpayOrderId, razorpayPaymentId, razorpaySignature } = await req.json();
+
+    // Demo mode: mark as paid without Razorpay verification.
+    if (!isMongoConfigured()) {
+      if (orderId) {
+        updateDemoOrder(String(orderId), {
+          paymentStatus: "paid",
+          razorpayOrderId,
+          razorpayPaymentId,
+        });
+      }
+      return NextResponse.json({ success: true });
+    }
+
     await dbConnect();
 
-    const { orderId, razorpayOrderId, razorpayPaymentId, razorpaySignature } = await req.json();
+    const razorpayKeySecret = process.env.RAZORPAY_KEY_SECRET;
+    if (!razorpayKeySecret) {
+      return NextResponse.json({ success: false, error: 'Razorpay is not configured' }, { status: 500 });
+    }
 
     // Verify signature using HMAC SHA256
     const body = razorpayOrderId + '|' + razorpayPaymentId;
     const expectedSignature = crypto
-      .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET!)
+      .createHmac('sha256', razorpayKeySecret)
       .update(body)
       .digest('hex');
 

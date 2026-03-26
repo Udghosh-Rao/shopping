@@ -3,6 +3,8 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import dbConnect from '@/lib/mongodb';
 import Product from '@/models/Product';
+import { isMongoConfigured } from '@/lib/mongodb';
+import { updateDemoProduct, deleteDemoProduct } from '@/lib/demoBackend';
 
 async function checkAdmin() {
   const session = await getServerSession(authOptions);
@@ -14,11 +16,17 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   if (!(await checkAdmin())) return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-  await dbConnect();
 
   try {
     const { id } = await params;
     const body = await req.json();
+    if (!isMongoConfigured()) {
+      const product = updateDemoProduct(id, body);
+      if (!product) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+      return NextResponse.json({ product });
+    }
+
+    await dbConnect();
     const product = await Product.findByIdAndUpdate(id, body, { new: true });
     if (!product) return NextResponse.json({ error: 'Not found' }, { status: 404 });
     return NextResponse.json({ product });
@@ -33,10 +41,16 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   if (!(await checkAdmin())) return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-  await dbConnect();
 
   try {
     const { id } = await params;
+    if (!isMongoConfigured()) {
+      const ok = deleteDemoProduct(id);
+      if (!ok) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+      return NextResponse.json({ message: 'Product deleted' });
+    }
+
+    await dbConnect();
     await Product.findByIdAndDelete(id);
     return NextResponse.json({ message: 'Product deleted' });
   } catch (error) {

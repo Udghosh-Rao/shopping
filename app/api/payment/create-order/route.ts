@@ -3,8 +3,10 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import dbConnect from '@/lib/mongodb';
 import Order from '@/models/Order';
-import razorpay from '@/lib/razorpay';
+import { getRazorpay } from '@/lib/razorpay';
 import mongoose from 'mongoose';
+import { addDemoOrder } from '@/lib/demoBackend';
+import { isMongoConfigured } from '@/lib/mongodb';
 
 export async function POST(req: NextRequest) {
   try {
@@ -13,10 +15,49 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
 
-    await dbConnect();
-
     const body = await req.json();
     const { amount, items, shippingAddress, deliveryCharge, discount } = body;
+
+    const razorpay = getRazorpay();
+    const mongoOk = isMongoConfigured();
+
+    // Demo mode: create a local order and mark as paid.
+    if (!mongoOk || !razorpay) {
+      const userId = (session.user as Record<string, unknown>).id as string;
+      const orderId = `demo-order-${Date.now()}`;
+
+      addDemoOrder({
+        _id: orderId,
+        userId,
+        items: (items as Array<Record<string, unknown>>).map((it) => ({
+          name: String(it.name ?? ""),
+          image: String(it.image ?? ""),
+          size: String(it.size ?? ""),
+          quantity: Number(it.quantity ?? 1),
+          price:
+            typeof it.price === "number"
+              ? it.price
+              : typeof it.discountPrice === "number"
+                ? it.discountPrice
+                : 0,
+        })),
+        shippingAddress,
+        totalAmount: amount,
+        deliveryCharge: deliveryCharge || 0,
+        discount: discount || 0,
+        paymentStatus: "paid",
+        orderStatus: "Processing",
+        razorpayOrderId: "demo",
+      });
+
+      return NextResponse.json({
+        orderId,
+        razorpayOrderId: "demo",
+        amount: amount * 100,
+      });
+    }
+
+    await dbConnect();
 
     // Create Razorpay order (amount in paise)
     const razorpayOrder = await razorpay.orders.create({

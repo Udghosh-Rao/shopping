@@ -2,11 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import dbConnect from '@/lib/mongodb';
 import User from '@/models/User';
+import { isMongoConfigured } from '@/lib/mongodb';
+import { upsertDemoUser } from '@/lib/demoBackend';
 
 export async function POST(req: NextRequest) {
   try {
-    await dbConnect();
-
     const { name, email, password } = await req.json();
 
     if (!name || !email || !password) {
@@ -16,6 +16,28 @@ export async function POST(req: NextRequest) {
     if (password.length < 6) {
       return NextResponse.json({ error: 'Password must be at least 6 characters' }, { status: 400 });
     }
+
+    // Demo mode: create a local user record (no MongoDB).
+    if (!isMongoConfigured()) {
+      const demoEmail = String(email).trim().toLowerCase();
+      const role = demoEmail === (process.env.ADMIN_EMAIL || "admin@example.com").trim().toLowerCase() ? 'admin' : 'user';
+      const user = upsertDemoUser({
+        email: demoEmail,
+        name: String(name),
+        role,
+      });
+
+      return NextResponse.json({
+        message: 'Account created successfully',
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+        },
+      });
+    }
+
+    await dbConnect();
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });

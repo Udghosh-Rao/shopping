@@ -37,11 +37,13 @@ export default function ProductCard({ product }: { product: Product; index?: num
     : null;
 
   const availableSizes = product.sizes?.filter((s) => s.stock > 0) || [];
+  // Some API payloads don't include `isSoldOut`, so derive it from sizes stock.
+  const isSoldOut = product.isSoldOut ?? availableSizes.length === 0;
 
   const handleQuickAdd = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (product.isSoldOut) return;
+    if (isSoldOut) return;
 
     if (availableSizes.length <= 1) {
       addItem({
@@ -126,10 +128,10 @@ export default function ProductCard({ product }: { product: Product; index?: num
                   NEW
                 </span>
               )}
-              {discount && !product.isSoldOut && (
+              {discount && !isSoldOut && (
                 <span className="bg-[#E63946] text-white text-[10px] px-2.5 py-1 font-black rounded-full">-{discount}%</span>
               )}
-              {product.isSoldOut && (
+              {isSoldOut && (
                 <span className="bg-gray-500 text-white text-[10px] px-2.5 py-1 font-black tracking-[0.15em] rounded-full">
                   SOLD OUT
                 </span>
@@ -159,13 +161,12 @@ export default function ProductCard({ product }: { product: Product; index?: num
                   exit={{ opacity: 0 }}
                   className="absolute inset-0 flex flex-col items-end justify-end p-3 gap-2 z-10"
                 >
-                  <Link
-                    href={`/product/${product.slug}`}
-                    onClick={(e) => e.stopPropagation()}
+                  <div
                     className="w-9 h-9 rounded-full bg-white shadow-lg flex items-center justify-center hover:bg-[#0A0A0A] hover:text-white transition-colors"
+                    aria-hidden="true"
                   >
                     <Eye size={15} />
-                  </Link>
+                  </div>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -206,12 +207,12 @@ export default function ProductCard({ product }: { product: Product; index?: num
               transition={{ duration: 0.2 }}
               className="absolute bottom-0 left-0 right-0 py-3 flex items-center justify-center gap-2 text-xs font-black tracking-[0.15em] z-10 rounded-b-2xl transition-colors"
               style={{
-                background: product.isSoldOut ? "#9CA3AF" : "#0A0A0A",
+                background: isSoldOut ? "#9CA3AF" : "#0A0A0A",
                 color: "#FFFFFF",
               }}
             >
               <ShoppingBag size={13} />
-              {product.isSoldOut ? "SOLD OUT" : availableSizes.length === 1 ? "QUICK ADD" : "SELECT SIZE"}
+              {isSoldOut ? "SOLD OUT" : availableSizes.length === 1 ? "QUICK ADD" : "SELECT SIZE"}
             </motion.button>
           </div>
 

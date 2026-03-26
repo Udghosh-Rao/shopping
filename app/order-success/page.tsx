@@ -9,6 +9,12 @@ export default function OrderSuccessPage() {
   const { clearCart } = useCart();
   useEffect(() => {
     clearCart();
+    try {
+      localStorage.removeItem('coupon_discount');
+      localStorage.removeItem('coupon_code');
+    } catch {
+      // ignore
+    }
   }, [clearCart]);
 
   return (
@@ -50,9 +56,9 @@ export default function OrderSuccessPage() {
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
           <p className="text-[#E63946] text-xs font-bold tracking-[0.3em] mb-2">ORDER CONFIRMED</p>
-          <h1 className="text-4xl font-black tracking-tight mb-3">YOU'RE ALL SET! 🎉</h1>
+          <h1 className="text-4xl font-black tracking-tight mb-3">YOU&apos;RE ALL SET! 🎉</h1>
           <p className="text-gray-500 mb-8 leading-relaxed">
-            Your order has been placed and is being processed. You'll receive a confirmation email shortly.
+            Your order has been placed and is being processed. You&apos;ll receive a confirmation email shortly.
           </p>
 
           <div className="bg-[#F8F5F0] rounded-2xl p-5 mb-8 flex items-center gap-4">

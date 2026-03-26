@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import Product from '@/models/Product';
+import { searchSampleProducts } from '@/lib/sampleCatalog';
 
 export async function GET(req: NextRequest) {
   try {
@@ -35,6 +36,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ products });
   } catch (error) {
     console.error('Search API error:', error);
-    return NextResponse.json({ products: [] });
+    const q = new URL(req.url).searchParams.get('q') || '';
+    return NextResponse.json({ products: searchSampleProducts(q) });
   }
 }

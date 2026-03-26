@@ -3,6 +3,9 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import dbConnect from '@/lib/mongodb';
 import Order from '@/models/Order';
+import { isMongoConfigured } from '@/lib/mongodb';
+import { updateDemoOrder } from '@/lib/demoBackend';
+import type { DemoOrder } from '@/lib/demoBackend';
 
 export async function PUT(
   req: NextRequest,
@@ -13,11 +16,16 @@ export async function PUT(
     return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
   }
 
-  await dbConnect();
-
   try {
     const { id } = await params;
-    const body = await req.json();
+    const body = (await req.json()) as Partial<DemoOrder>;
+    if (!isMongoConfigured()) {
+      const order = updateDemoOrder(id, body);
+      if (!order) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+      return NextResponse.json({ order });
+    }
+
+    await dbConnect();
     const order = await Order.findByIdAndUpdate(id, body, { new: true });
     if (!order) return NextResponse.json({ error: 'Not found' }, { status: 404 });
     return NextResponse.json({ order });

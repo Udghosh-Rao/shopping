@@ -4,6 +4,8 @@ import { authOptions } from '@/lib/auth';
 import dbConnect from '@/lib/mongodb';
 import Order from '@/models/Order';
 import mongoose from 'mongoose';
+import { getDemoOrdersByUserId } from '@/lib/demoBackend';
+import { isMongoConfigured } from '@/lib/mongodb';
 
 export async function GET(req: NextRequest) {
   try {
@@ -12,11 +14,24 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
 
-    await dbConnect();
-
     const { searchParams } = new URL(req.url);
     const userId = (session.user as Record<string, unknown>).id as string;
     const orderId = searchParams.get('id');
+
+    // Demo mode: return in-memory orders.
+    if (!isMongoConfigured()) {
+      if (orderId) {
+        const order = getDemoOrdersByUserId(userId).find((o) => o._id === orderId);
+        if (!order) {
+          return NextResponse.json({ error: 'Order not found' }, { status: 404 });
+        }
+        return NextResponse.json({ order });
+      }
+      const orders = getDemoOrdersByUserId(userId);
+      return NextResponse.json({ orders });
+    }
+
+    await dbConnect();
 
     if (orderId) {
       const order = await Order.findOne({

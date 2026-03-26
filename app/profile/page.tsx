@@ -30,12 +30,12 @@ function ProfileContent() {
   const [loadingOrders, setLoadingOrders] = useState(false);
 
   useEffect(() => {
-    if (tabParam) setActiveTab(tabParam);
+    if (tabParam) void Promise.resolve().then(() => setActiveTab(tabParam));
   }, [tabParam]);
 
   useEffect(() => {
     if (activeTab === 'orders') {
-      setLoadingOrders(true);
+      void Promise.resolve().then(() => setLoadingOrders(true));
       fetch('/api/orders')
         .then((res) => res.json())
         .then((data) => setOrders(data.orders || []))

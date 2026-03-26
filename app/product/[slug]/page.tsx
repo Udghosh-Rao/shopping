@@ -1,5 +1,4 @@
-import dbConnect from '@/lib/mongodb';
-import Product from '@/models/Product';
+import { getSampleProductBySlug } from '@/lib/sampleCatalog';
 import ProductDetailClient from './ProductDetailClient';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
@@ -10,8 +9,7 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  await dbConnect();
-  const product = await Product.findOne({ slug }).lean();
+  const { product } = getSampleProductBySlug(slug);
 
   if (!product) {
     return { title: 'Product Not Found' };
@@ -30,25 +28,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ProductPage({ params }: Props) {
   const { slug } = await params;
-  await dbConnect();
-
-  const product = await Product.findOne({ slug }).lean();
+  const { product, related } = getSampleProductBySlug(slug);
 
   if (!product) {
     notFound();
   }
 
-  const related = await Product.find({
-    category: product.category,
-    _id: { $ne: product._id },
-  })
-    .limit(4)
-    .lean();
-
   return (
     <ProductDetailClient
-      product={JSON.parse(JSON.stringify(product))}
-      relatedProducts={JSON.parse(JSON.stringify(related))}
+      product={product}
+      relatedProducts={related}
     />
   );
 }

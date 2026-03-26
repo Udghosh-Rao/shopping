@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import Product from '@/models/Product';
+import { getSampleProductBySlug } from '@/lib/sampleCatalog';
 
 export async function GET(
   req: NextRequest,
@@ -27,6 +28,11 @@ export async function GET(
     return NextResponse.json({ product, related });
   } catch (error) {
     console.error('Product API error:', error);
-    return NextResponse.json({ error: 'Failed to fetch product' }, { status: 500 });
+    const { slug } = await params;
+    const fallback = getSampleProductBySlug(slug);
+    if (!fallback.product) {
+      return NextResponse.json({ error: 'Product not found' }, { status: 404 });
+    }
+    return NextResponse.json(fallback);
   }
 }

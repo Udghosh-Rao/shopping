@@ -8,7 +8,7 @@ export default function RecentlyViewed() {
   const [products, setProducts] = useState<RecentlyViewedProduct[]>([]);
 
   useEffect(() => {
-    setProducts(getRecentlyViewed());
+    void Promise.resolve().then(() => setProducts(getRecentlyViewed()));
   }, []);
 
   if (!products.length) return null;

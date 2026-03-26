@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import Product from '@/models/Product';
+import { isMongoConfigured } from '@/lib/mongodb';
 
 const sampleProducts = [
   {
@@ -396,6 +397,10 @@ const sampleProducts = [
 
 export async function POST() {
   try {
+    if (!isMongoConfigured()) {
+      return NextResponse.json({ message: "MongoDB not configured. Seed skipped (demo mode)." });
+    }
+
     await dbConnect();
 
     // Check if products already exist
