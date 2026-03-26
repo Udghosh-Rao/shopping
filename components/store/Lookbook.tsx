@@ -57,7 +57,7 @@ export default function Lookbook() {
           href="https://instagram.com/dripstore"
           target="_blank"
           rel="noreferrer"
-          className="inline-flex items-center gap-2 px-6 py-3 border-2 border-gray-200 rounded-full text-sm font-bold hover:border-[#E63946] hover:text-[#E63946] transition-all"
+          className="inline-flex items-center gap-2.5 px-8 py-3.5 border border-gray-300 rounded-full text-sm font-semibold tracking-[0.06em] hover:border-[#E63946] hover:text-[#E63946] transition-all"
         >
           <Camera size={16} /> FOLLOW @DRIPSTORE
         </a>
