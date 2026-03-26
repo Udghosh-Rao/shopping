@@ -72,26 +72,29 @@ export default function Footer() {
   return (
     <footer className="bg-[#0A0A0A] text-white pb-24 md:pb-0">
       <div className="border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-4 md:px-8 py-14 md:py-16 flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
-          <div>
+        <div className="max-w-7xl mx-auto px-4 md:px-8 py-14 md:py-16 grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-10 lg:gap-14 items-center">
+          <div className="max-w-xl">
             <p className="text-[#E63946] text-xs font-bold tracking-[0.12em] mb-2">STAY IN THE LOOP</p>
             <h3 className="text-2xl md:text-3xl font-black tracking-tight">DROP ALERTS + EXCLUSIVE OFFERS</h3>
             <p className="text-gray-400 text-sm md:text-base mt-2">Get notified before everyone else. No spam, only drip. 🔥</p>
           </div>
-          <div className="flex w-full md:w-auto max-w-md">
+          <div className="w-full max-w-xl">
+            <div className="flex w-full">
             <input
               type="email"
               placeholder="your@email.com"
-              className="bg-white/5 border border-white/20 px-4 py-3.5 text-sm w-full md:w-72 outline-none focus:border-[#E63946] rounded-l-xl transition-colors placeholder:text-gray-500"
+              className="bg-white/5 border border-white/20 px-4 py-3.5 text-sm w-full outline-none focus:border-[#E63946] rounded-l-xl transition-colors placeholder:text-gray-500"
             />
             <button className="bg-[#E63946] px-6 py-3.5 text-sm font-black tracking-[0.08em] hover:bg-red-700 transition-colors rounded-r-xl whitespace-nowrap">
               SUBSCRIBE
             </button>
           </div>
+            <p className="text-xs text-gray-500 mt-3">We only send product drops, sale alerts, and important updates.</p>
+          </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 md:px-8 py-14 grid grid-cols-2 md:grid-cols-4 gap-10 md:gap-12">
+      <div className="max-w-7xl mx-auto px-4 md:px-8 py-14 grid grid-cols-1 md:grid-cols-[1.2fr_1fr_1fr_1fr] gap-10 md:gap-12">
         <div>
           <Link href="/" className="flex items-center gap-1.5 mb-4">
             <div className="w-8 h-8 bg-[#E63946] rounded-xl flex items-center justify-center">
@@ -138,7 +141,7 @@ export default function Footer() {
       <div className="border-t border-white/10 py-6 px-4 md:px-8">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3 text-xs text-gray-500">
           <p>© 2026 DripStore. All rights reserved. Made with ❤️ in India.</p>
-          <div className="flex flex-wrap gap-4 justify-center">
+          <div className="flex flex-wrap gap-x-4 gap-y-2 justify-center">
             {["Privacy Policy", "Terms", "Shipping Policy", "Refund Policy"].map((t) => (
               <Link key={t} href="#" className="hover:text-white transition-colors">
                 {t}
