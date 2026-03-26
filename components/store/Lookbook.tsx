@@ -40,6 +40,7 @@ export default function Lookbook() {
                 fill
                 className="object-cover"
                 sizes="(max-width: 768px) 33vw, 16vw"
+                unoptimized
               />
             </div>
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-all duration-300 flex flex-col items-center justify-center gap-1 opacity-0 group-hover:opacity-100">

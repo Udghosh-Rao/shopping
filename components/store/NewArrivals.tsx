@@ -25,6 +25,7 @@ interface Product {
 export default function NewArrivals() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [apiFailed, setApiFailed] = useState(false);
   const [activeFilter, setActiveFilter] = useState("All");
 
   const filters = ["All", "Men", "Women", "Sneakers"];
@@ -40,8 +41,15 @@ export default function NewArrivals() {
 
     fetch(`/api/products?${params}`)
       .then((r) => r.json())
-      .then((d) => setProducts(d.products || []))
-      .catch(() => setProducts([]))
+      .then((d) => {
+        const list = d.products || [];
+        setProducts(list);
+        setApiFailed(!list.length && !!d.error);
+      })
+      .catch(() => {
+        setProducts([]);
+        setApiFailed(true);
+      })
       .finally(() => setLoading(false));
   }, [activeFilter]);
 
@@ -84,7 +92,7 @@ export default function NewArrivals() {
             </div>
           ))}
         </div>
-      ) : (
+      ) : products.length > 0 ? (
         <motion.div layout className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
           {products.map((product, i) => (
             <motion.div key={product._id} layout initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
@@ -92,6 +100,12 @@ export default function NewArrivals() {
             </motion.div>
           ))}
         </motion.div>
+      ) : (
+        <div className="rounded-2xl border border-dashed border-gray-200 bg-[#F8F5F0] px-6 py-10 text-center">
+          <p className="text-sm font-semibold text-[#0A0A0A]">
+            {apiFailed ? "Products are loading from server. Please refresh in a moment." : "No products found for this filter."}
+          </p>
+        </div>
       )}
 
       <div className="mt-12 text-center">

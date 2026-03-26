@@ -91,7 +91,7 @@ export default function HeroBanner() {
         0{current + 1}
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 md:px-10 w-full pt-10 md:pt-16 pb-12 md:pb-16">
+      <div className="max-w-7xl mx-auto px-6 md:px-10 w-full pt-24 md:pt-28 pb-12 md:pb-16">
         <AnimatePresence mode="wait" custom={direction}>
           <motion.div
             key={slide.id}
@@ -135,7 +135,7 @@ export default function HeroBanner() {
                     className="overflow-hidden"
                   >
                     <h1
-                      className="text-[16vw] sm:text-[13vw] md:text-[9vw] lg:text-[7.5vw] font-black leading-[0.9] tracking-[-0.03em]"
+                      className="text-[14vw] sm:text-[11vw] md:text-[9vw] lg:text-[7.5vw] font-black leading-[0.9] tracking-[-0.03em]"
                       style={{ color: slide.textColor }}
                     >
                       {word}
@@ -210,6 +210,7 @@ export default function HeroBanner() {
                   alt={`Hero slide ${current + 1}`}
                   fill
                   className="object-cover object-top"
+                  sizes="(max-width: 1024px) 100vw, 448px"
                   priority
                 />
 

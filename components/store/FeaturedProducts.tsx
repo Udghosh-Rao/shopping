@@ -22,12 +22,21 @@ interface Product {
 
 export default function FeaturedProducts() {
   const [products, setProducts] = useState<Product[]>([]);
+  const [apiFailed, setApiFailed] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetch("/api/products?featured=true&limit=10")
       .then((r) => r.json())
-      .then((d) => setProducts(d.products || []));
+      .then((d) => {
+        const list = d.products || [];
+        setProducts(list);
+        setApiFailed(!list.length && !!d.error);
+      })
+      .catch(() => {
+        setProducts([]);
+        setApiFailed(true);
+      });
   }, []);
 
   const scroll = (dir: "left" | "right") => {
@@ -36,7 +45,16 @@ export default function FeaturedProducts() {
     }
   };
 
-  if (!products.length) return null;
+  if (!products.length) {
+    if (!apiFailed) return null;
+    return (
+      <section className="py-20 px-4 md:px-8 max-w-7xl mx-auto">
+        <div className="rounded-2xl border border-dashed border-gray-200 bg-[#F8F5F0] px-6 py-10 text-center">
+          <p className="text-sm font-semibold text-[#0A0A0A]">Trending products are temporarily unavailable.</p>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="py-20 px-4 md:px-8 max-w-7xl mx-auto">
