@@ -1,4 +1,4 @@
-import HeroBanner from "@/components/store/HeroBanner";
+import HomeHeroClient from "@/components/store/HomeHeroClient";
 import MarqueeBanner from "@/components/store/MarqueeBanner";
 import NewArrivals from "@/components/store/NewArrivals";
 import FeaturedProducts from "@/components/store/FeaturedProducts";
@@ -11,7 +11,7 @@ import Lookbook from "@/components/store/Lookbook";
 export default function HomePage() {
   return (
     <div className="overflow-x-hidden pb-20 md:pb-0">
-      <HeroBanner />
+      <HomeHeroClient />
       <MarqueeBanner />
 
       <div className="bg-[#0A0A0A] py-16 md:py-24 text-white">
