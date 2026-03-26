@@ -20,22 +20,22 @@
           <div class="flex gap-4 fadeUp">
             <div class="flex-1">
               <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 pl-2">FIRST NAME</label>
-              <input type="text" required class="input-dark w-full h-14 bg-black/50" placeholder="Alex" />
+              <input v-model="firstName" type="text" required class="input-dark w-full h-14 bg-black/50" placeholder="Alex" />
             </div>
             <div class="flex-1">
               <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 pl-2">LAST NAME</label>
-              <input type="text" required class="input-dark w-full h-14 bg-black/50" placeholder="Chen" />
+              <input v-model="lastName" type="text" required class="input-dark w-full h-14 bg-black/50" placeholder="Chen" />
             </div>
           </div>
 
           <div class="fadeUp">
             <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 pl-2">EMAIL</label>
-            <input type="email" required class="input-dark w-full h-14 bg-black/50" placeholder="user@example.com" />
+            <input v-model="email" type="email" required class="input-dark w-full h-14 bg-black/50" placeholder="user@example.com" />
           </div>
 
           <div class="fadeUp">
             <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 pl-2">PASSWORD</label>
-            <input type="password" required class="input-dark w-full h-14 bg-black/50" placeholder="••••••••" />
+            <input v-model="password" type="password" required class="input-dark w-full h-14 bg-black/50" placeholder="••••••••" />
           </div>
 
           <button 
@@ -92,22 +92,49 @@
 import { ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { useRipple } from '../composables/useRipple'
+import { useAuthStore } from '../stores/authStore'
+import { useToast } from '../composables/useToast'
+import api from '../services/api'
 
 const router = useRouter()
+const authStore = useAuthStore()
 const { createRipple } = useRipple()
+const { showToast } = useToast()
 
+const firstName = ref('')
+const lastName = ref('')
+const email = ref('')
+const password = ref('')
 const status = ref('idle')
 
-const handleRegister = (e) => {
+const handleRegister = async (e) => {
   if (status.value !== 'idle') return
   status.value = 'loading'
   
-  setTimeout(() => {
+  try {
+    const username = `${firstName.value} ${lastName.value}`.trim()
+    
+    const response = await api.post('/auth/register', {
+      username,
+      email: email.value,
+      password: password.value
+    })
+    
+    const { token, username: returnedUsername, email: returnedEmail } = response.data
+    
+    authStore.login(token, returnedUsername, returnedEmail)
+    
     status.value = 'success'
+    showToast('Account created successfully! Welcome to ShopZone', 'success')
+    
     setTimeout(() => {
       router.push('/')
     }, 1000)
-  }, 1500)
+  } catch (error) {
+    status.value = 'idle'
+    const errorMessage = error.response?.data?.error || 'Registration failed. Please try again.'
+    showToast(errorMessage, 'error')
+  }
 }
 </script>
 
