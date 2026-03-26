@@ -2,20 +2,66 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { CheckCircle, Package, Home } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { useCart } from "@/lib/cartStore";
 
-export default function OrderSuccessPage() {
+function OrderSuccessContent() {
   const { clearCart } = useCart();
+  const searchParams = useSearchParams();
+  const orderId = searchParams.get('orderId');
+  const [isValidOrder, setIsValidOrder] = useState<boolean | null>(null);
+
   useEffect(() => {
-    clearCart();
-    try {
-      localStorage.removeItem('coupon_discount');
-      localStorage.removeItem('coupon_code');
-    } catch {
-      // ignore
+    if (!orderId) {
+      setIsValidOrder(false);
+      return;
     }
-  }, [clearCart]);
+
+    // Validate order exists (simple check - order ID format validation)
+    // In production, you'd make an API call to verify the order belongs to the current user
+    if (typeof orderId === 'string' && orderId.length > 0) {
+      setIsValidOrder(true);
+      clearCart();
+      try {
+        localStorage.removeItem('coupon_discount');
+        localStorage.removeItem('coupon_code');
+      } catch {
+        // ignore
+      }
+    } else {
+      setIsValidOrder(false);
+    }
+  }, [orderId, clearCart]);
+
+  // Redirect invalid orders
+  if (isValidOrder === false) {
+    return (
+      <div className="min-h-screen bg-[#F8F5F0] flex items-center justify-center px-4 py-16">
+        <div className="bg-white rounded-3xl p-8 md:p-12 max-w-lg w-full text-center shadow-xl">
+          <h1 className="text-3xl font-black mb-4">Order Not Found</h1>
+          <p className="text-gray-500 mb-8">We couldn't find this order. Please check the link or contact support.</p>
+          <Link
+            href="/"
+            className="inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-[#E63946] text-white font-bold rounded-2xl hover:bg-red-700 transition-colors"
+          >
+            <Home size={16} /> BACK TO HOME
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (isValidOrder === null) {
+    return (
+      <div className="min-h-screen bg-[#F8F5F0] flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#E63946]"></div>
+          <p className="mt-4 text-gray-500">Verifying order...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#F8F5F0] flex items-center justify-center px-4 py-16">
@@ -88,5 +134,20 @@ export default function OrderSuccessPage() {
         </motion.div>
       </motion.div>
     </div>
+  );
+}
+
+export default function OrderSuccessPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#F8F5F0] flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#E63946]"></div>
+          <p className="mt-4 text-gray-500">Loading order...</p>
+        </div>
+      </div>
+    }>
+      <OrderSuccessContent />
+    </Suspense>
   );
 }
