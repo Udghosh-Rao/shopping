@@ -2,6 +2,7 @@ import { getSampleProductBySlug } from '@/lib/sampleCatalog';
 import ProductDetailClient from './ProductDetailClient';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
+import { productSchema } from '@/lib/structuredData';
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -34,10 +35,29 @@ export default async function ProductPage({ params }: Props) {
     notFound();
   }
 
+  // Mock reviews for schema (in production, fetch from DB)
+  const mockReviews = [
+    { rating: 5 },
+    { rating: 4 },
+    { rating: 5 },
+  ];
+
+  // Generate JSON-LD schema
+  const schema = productSchema(product as any, mockReviews);
+
   return (
-    <ProductDetailClient
-      product={product}
-      relatedProducts={related}
-    />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+      />
+      <ProductDetailClient
+        product={product}
+        relatedProducts={related}
+      />
+    </>
   );
 }
+
+// Regenerate product pages every hour
+export const revalidate = 3600;

@@ -6,6 +6,8 @@ import Order from '@/models/Order';
 import Product from '@/models/Product';
 import Coupon from '@/models/Coupon';
 import { getRazorpay } from '@/lib/razorpay';
+import { triggerOrderConfirmation } from '@/lib/emailTriggers';
+import { checkLowStock } from '@/lib/stockAlerts';
 import mongoose from 'mongoose';
 
 export async function POST(req: NextRequest) {
@@ -105,6 +107,24 @@ export async function POST(req: NextRequest) {
       orderStatus: 'Processing',
       razorpayOrderId: razorpayOrder.id,
     });
+
+    // Trigger email and stock alerts in background (don't wait for completion)
+    (async () => {
+      try {
+        await triggerOrderConfirmation(order._id.toString());
+      } catch (error) {
+        console.error('Failed to send order confirmation email:', error);
+      }
+
+      // Check and notify for low stock on all items in order
+      try {
+        for (const item of items as Array<Record<string, unknown>>) {
+          await checkLowStock(item.productId as string);
+        }
+      } catch (error) {
+        console.error('Failed to check stock alerts:', error);
+      }
+    })();
 
     return NextResponse.json({
       orderId: order._id.toString(),

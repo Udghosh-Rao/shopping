@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
-import { Heart, ShoppingBag, Eye } from "lucide-react";
+import { Heart, ShoppingBag, Eye, Zap, Star } from "lucide-react";
 import { useCart } from "@/lib/cartStore";
 import { useFlyToCart } from "@/components/ui/FlyToCart";
 import TiltCard from "@/components/ui/TiltCard";
@@ -214,6 +214,28 @@ export default function ProductCard({ product }: { product: Product; index?: num
               <ShoppingBag size={13} />
               {isSoldOut ? "SOLD OUT" : availableSizes.length === 1 ? "QUICK ADD" : "SELECT SIZE"}
             </motion.button>
+          </div>
+
+          {/* Badges */}
+          <div className="absolute top-3 left-3 flex flex-col gap-2 z-5">
+            {product.isNewArrival && (
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                className="bg-blue-500 text-white px-2 py-1 rounded text-xs font-bold flex items-center gap-1"
+              >
+                <Star size={12} /> New
+              </motion.div>
+            )}
+            {product.discountPrice && (
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                className="bg-red-500 text-white px-2 py-1 rounded text-xs font-bold flex items-center gap-1"
+              >
+                <Zap size={12} /> Sale
+              </motion.div>
+            )}
           </div>
 
           <div className="mt-3 px-0.5">

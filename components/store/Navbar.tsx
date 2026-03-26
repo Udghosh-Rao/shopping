@@ -93,7 +93,10 @@ export default function Navbar() {
                 <Search size={19} />
               </button>
             <Link href="/profile" className="p-2 rounded-xl hover:bg-[var(--input-bg)] transition-colors hidden md:block"><User size={19} /></Link>
-            <Link href="/profile?tab=wishlist" className="p-2 rounded-xl hover:bg-[var(--input-bg)] transition-colors hidden md:block"><Heart size={19} /></Link>
+            <Link href="/profile?tab=wishlist" className="p-2 rounded-xl hover:bg-[var(--input-bg)] transition-colors hidden md:block relative">
+              <Heart size={19} />
+              <span className="absolute top-0 right-0 w-4 h-4 bg-accent text-white text-xs rounded-full flex items-center justify-center font-bold">0</span>
+            </Link>
               <button
                 onClick={() => window.dispatchEvent(new Event("open-cart-sidebar"))}
               className="relative p-2 rounded-xl hover:bg-[var(--input-bg)] transition-colors"

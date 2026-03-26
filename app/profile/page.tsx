@@ -7,7 +7,7 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
 import {
-  User, MapPin, Package, Heart, LogOut, Loader2, Edit2,
+  User, MapPin, Package, Heart, LogOut, Loader2, Edit2, Download, Plus,
 } from 'lucide-react';
 import OrderTracker from '@/components/ui/OrderTracker';
 
@@ -204,9 +204,34 @@ function ProfileContent() {
                   <div className="mt-5 pt-4 border-t border-[var(--border)]">
                     <OrderTracker status={order.orderStatus} />
                   </div>
-                  <div className="mt-4 pt-3 border-t border-[var(--border)] flex justify-between items-center">
-                    <span className="text-sm text-muted">Total</span>
-                    <span className="font-bold">₹{order.totalAmount.toLocaleString()}</span>
+                  {/* Action Buttons */}
+                  <div className="mt-4 pt-3 border-t border-[var(--border)] flex flex-wrap gap-2 justify-between items-start sm:items-center">
+                    <div className="flex gap-2 flex-wrap">
+                      <a
+                        href={`/api/orders/${order._id}/invoice`}
+                        download
+                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-accent border border-accent rounded-lg hover:bg-accent hover:text-white transition-all"
+                      >
+                        <Download className="w-3.5 h-3.5" />
+                        Invoice
+                      </a>
+                      {order.orderStatus !== 'Cancelled' && (
+                        <button
+                          onClick={() => {
+                            // Placeholder for return request
+                            alert('Return request feature coming soon!');
+                          }}
+                          className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-accent border border-accent rounded-lg hover:bg-accent hover:text-white transition-all"
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                          Return
+                        </button>
+                      )}
+                    </div>
+                    <div>
+                      <span className="text-xs text-muted block">Total</span>
+                      <span className="font-bold">₹{order.totalAmount.toLocaleString()}</span>
+                    </div>
                   </div>
                 </div>
               ))

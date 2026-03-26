@@ -13,6 +13,7 @@ import RestockNotify from '@/components/ui/RestockNotify';
 import CountdownTimer from '@/components/ui/CountdownTimer';
 import RecentlyViewed from '@/components/store/RecentlyViewed';
 import { addRecentlyViewed } from '@/lib/recentlyViewed';
+import ReviewSection from '@/components/reviews/ReviewSection';
 
 interface Product {
   _id: string;
@@ -321,6 +322,10 @@ export default function ProductDetailClient({ product, relatedProducts }: Props)
           )}
         </div>
       </div>
+
+
+      {/* Customer Reviews */}
+      <ReviewSection productId={product._id} />
 
       {/* Related Products */}
       {relatedProducts.length > 0 && (

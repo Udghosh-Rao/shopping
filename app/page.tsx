@@ -1,11 +1,16 @@
 import HomeHeroClient from "@/components/store/HomeHeroClient";
 import NewArrivals from "@/components/store/NewArrivals";
 import AnimatedCounter from "@/components/ui/AnimatedCounter";
+import FlashSaleHero from "@/components/sales/FlashSaleHero";
+import ReviewsSection from "@/components/store/ReviewsSection";
 
 export default function HomePage() {
   return (
     <div className="overflow-x-hidden pb-20 md:pb-0">
       <HomeHeroClient />
+
+      {/* Flash Sale Section */}
+      <FlashSaleHero />
 
       <div className="bg-white py-12 md:py-16 border-b border-gray-100">
         <div className="grid grid-cols-1 sm:grid-cols-3 max-w-5xl mx-auto text-center gap-8 md:gap-10 px-6 divide-y sm:divide-y-0 sm:divide-x divide-gray-100">
@@ -25,6 +30,9 @@ export default function HomePage() {
       </div>
 
       <NewArrivals />
+
+      {/* Featured Product Reviews Section */}
+      <ReviewsSection />
     </div>
   );
 }

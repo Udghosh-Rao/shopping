@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import dbConnect from '@/lib/mongodb';
 import Order from '@/models/Order';
+import { triggerOrderConfirmation } from '@/lib/emailTriggers';
 
 export async function POST(req: NextRequest) {
   try {
@@ -37,6 +38,11 @@ export async function POST(req: NextRequest) {
       paymentStatus: 'paid',
       razorpayPaymentId,
     });
+
+    // Trigger order confirmation email
+    await triggerOrderConfirmation(orderId).catch((err) =>
+      console.error('Email send failed:', err)
+    );
 
     return NextResponse.json({ success: true });
   } catch (error) {

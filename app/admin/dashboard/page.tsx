@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { DollarSign, ShoppingCart, Package, Users, TrendingUp, Loader2 } from 'lucide-react';
+import Analytics from '@/components/admin/Analytics';
 
 interface Stats {
   totalSales: number;
@@ -74,7 +75,7 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div>
+    <div className="space-y-8">
       <div className="flex items-center gap-3 mb-8">
         <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center">
           <TrendingUp className="w-5 h-5 text-accent" />
@@ -86,7 +87,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {statCards.map((card, i) => (
           <motion.div
             key={card.title}
@@ -103,6 +104,9 @@ export default function AdminDashboard() {
           </motion.div>
         ))}
       </div>
+
+      {/* Analytics Section */}
+      <Analytics />
 
       {/* Recent Orders */}
       <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl">

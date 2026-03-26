@@ -9,6 +9,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { MapPin, CreditCard, Loader2, ShieldCheck } from 'lucide-react';
+import PaymentMethods from '@/components/checkout/PaymentMethods';
 
 declare global {
   interface Window {
@@ -23,6 +24,7 @@ export default function CheckoutPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [couponDiscount, setCouponDiscount] = useState(0);
+  const [paymentMethod, setPaymentMethod] = useState<'razorpay' | 'cod'>('razorpay');
 
   const [form, setForm] = useState({
     fullName: session?.user?.name || '',
@@ -64,6 +66,42 @@ export default function CheckoutPage() {
     });
   };
 
+  const handleCODOrder = async () => {
+    try {
+      const res = await fetch('/api/payment/create-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          amount: finalTotal,
+          items: items.map((item) => ({
+            productId: item.productId,
+            name: item.name,
+            image: item.image,
+            size: item.size,
+            quantity: item.quantity,
+            price: item.discountPrice || item.price,
+          })),
+          shippingAddress: form,
+          deliveryCharge,
+          discount: couponDiscount,
+          isCOD: true,
+        }),
+      });
+
+      const data = await res.json();
+      if (!data.orderId) {
+        toast.error('Failed to create order');
+        return;
+      }
+
+      clearCart();
+      router.push(`/order-success?orderId=${data.orderId}`);
+    } catch (error) {
+      console.error('COD order error:', error);
+      toast.error('Failed to create COD order');
+    }
+  };
+
   const handlePayment = async () => {
     // Validate form
     if (!form.fullName || !form.phone || !form.addressLine1 || !form.city || !form.state || !form.pincode) {
@@ -85,8 +123,13 @@ export default function CheckoutPage() {
     setLoading(true);
 
     try {
-      // Demo mode: if Razorpay public key isn't configured, simulate payment success.
-      // This prevents the UI from trying to open Razorpay with an undefined key.
+      // COD Flow
+      if (paymentMethod === 'cod') {
+        await handleCODOrder();
+        return;
+      }
+
+      // Razorpay Flow
       const razorpayKey = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
 
       if (!razorpayKey) {
@@ -234,8 +277,9 @@ export default function CheckoutPage() {
       <h1 className="text-3xl font-bold mb-8">Checkout</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Address Form */}
-        <div className="lg:col-span-2">
+        {/* Address Form & Payment Method */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Address Form */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -332,6 +376,19 @@ export default function CheckoutPage() {
               </div>
             </div>
           </motion.div>
+
+          {/* Payment Methods */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6"
+          >
+            <PaymentMethods
+              selectedMethod={paymentMethod}
+              onMethodChange={setPaymentMethod}
+            />
+          </motion.div>
         </div>
 
         {/* Order Summary */}
@@ -388,6 +445,11 @@ export default function CheckoutPage() {
                   <Loader2 className="w-4 h-4 animate-spin" />
                   Processing...
                 </>
+              ) : paymentMethod === 'cod' ? (
+                <>
+                  <CreditCard className="w-4 h-4" />
+                  Place Order (COD)
+                </>
               ) : (
                 <>
                   <CreditCard className="w-4 h-4" />
@@ -398,7 +460,7 @@ export default function CheckoutPage() {
 
             <div className="flex items-center justify-center gap-1.5 text-xs text-muted">
               <ShieldCheck className="w-3.5 h-3.5" />
-              <span>Secure payment via Razorpay</span>
+              <span>{paymentMethod === 'cod' ? 'Secure order' : 'Secure payment via Razorpay'}</span>
             </div>
           </div>
         </div>

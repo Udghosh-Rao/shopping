@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import dbConnect from '@/lib/mongodb';
 import Return from '@/models/Return';
+import { triggerReturnApproved, triggerReturnRejected } from '@/lib/emailTriggers';
 import mongoose from 'mongoose';
 
 async function checkAdmin() {
@@ -54,6 +55,17 @@ export async function PUT(
     }
 
     await returnRecord.save();
+
+    // Trigger email based on status
+    if (status === 'approved') {
+      await triggerReturnApproved(returnId).catch((err) =>
+        console.error('Email failed:', err)
+      );
+    } else if (status === 'rejected') {
+      await triggerReturnRejected(returnId).catch((err) =>
+        console.error('Email failed:', err)
+      );
+    }
 
     return NextResponse.json({
       success: true,
@@ -109,6 +121,17 @@ export async function PATCH(
     }
 
     await returnRecord.save();
+
+    // Trigger email based on status
+    if (status === 'approved') {
+      await triggerReturnApproved(returnId).catch((err) =>
+        console.error('Email failed:', err)
+      );
+    } else if (status === 'rejected') {
+      await triggerReturnRejected(returnId).catch((err) =>
+        console.error('Email failed:', err)
+      );
+    }
 
     return NextResponse.json({
       success: true,
