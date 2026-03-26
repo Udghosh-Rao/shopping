@@ -1,9 +1,6 @@
 import HomeHeroClient from "@/components/store/HomeHeroClient";
 import NewArrivals from "@/components/store/NewArrivals";
-import FeaturedProducts from "@/components/store/FeaturedProducts";
-import WhyChooseUs from "@/components/store/WhyChooseUs";
 import AnimatedCounter from "@/components/ui/AnimatedCounter";
-import RecentlyViewed from "@/components/store/RecentlyViewed";
 
 export default function HomePage() {
   return (
@@ -28,9 +25,6 @@ export default function HomePage() {
       </div>
 
       <NewArrivals />
-      <FeaturedProducts />
-      <RecentlyViewed />
-      <WhyChooseUs />
     </div>
   );
 }
