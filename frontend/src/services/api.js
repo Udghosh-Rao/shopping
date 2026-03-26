@@ -1,24 +1,33 @@
 import axios from 'axios'
-import { useAuthStore } from '../stores/authStore'
 
 const api = axios.create({
-  baseURL: 'http://localhost:5000/api'
+  baseURL: '/api'
 })
 
-api.interceptors.request.use((config) => {
-  const auth = useAuthStore()
-  if (auth.token) {
-    config.headers.Authorization = `Bearer ${auth.token}`
+// Request interceptor to attach Bearer token
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token')
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`
+    }
+    return config
+  },
+  (error) => {
+    return Promise.reject(error)
   }
-  return config
-})
+)
 
+// Response interceptor to handle 401 errors
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    const auth = useAuthStore()
-    if (error?.response?.status === 401 && auth.isAuthenticated) {
-      auth.logout()
+    if (error.response?.status === 401) {
+      // Clear token and redirect to login
+      localStorage.removeItem('token')
+      localStorage.removeItem('username')
+      localStorage.removeItem('email')
+      window.location.href = '/login'
     }
     return Promise.reject(error)
   }

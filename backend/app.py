@@ -1,76 +1,484 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS
-from flask_jwt_extended import JWTManager
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+from sqlalchemy import or_
 
-from models import Product, User, db
-from routes.auth import auth_bp
-from routes.cart import cart_bp
-from routes.orders import orders_bp
-from routes.products import products_bp
+from models import db, User, Product, CartItem, Wishlist, Order, OrderItem, Address
 
 
-def create_app():
-    app = Flask(__name__)
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
-    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-    app.config["JWT_SECRET_KEY"] = "change-me-in-production"
+app = Flask(__name__)
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config["JWT_SECRET_KEY"] = "change-me-in-production-f8b23e4a9d1c"
 
-    CORS(app)
-    db.init_app(app)
-    JWTManager(app)
-
-    app.register_blueprint(auth_bp)
-    app.register_blueprint(products_bp)
-    app.register_blueprint(cart_bp)
-    app.register_blueprint(orders_bp)
-
-    @app.get("/api/health")
-    def health():
-        return jsonify({"status": "ok"}), 200
-
-    with app.app_context():
-        db.create_all()
-        seed_products()
-        seed_admin_user()
-
-    return app
+CORS(app, origins=["http://localhost:5173"])
+db.init_app(app)
+jwt = JWTManager(app)
 
 
-def seed_admin_user():
-    existing_admin = User.query.filter_by(email="admin@example.com").first()
-    if existing_admin:
-        return
+# ═══════════════════════════════════════════════════════════════════════════
+# AUTH ROUTES
+# ═══════════════════════════════════════════════════════════════════════════
 
-    admin = User(username="admin", email="admin@example.com", role="admin")
-    admin.set_password("admin123")
-    db.session.add(admin)
+@app.post("/api/auth/register")
+def register():
+    data = request.json
+    username = data.get("username")
+    email = data.get("email")
+    password = data.get("password")
+    phone = data.get("phone")
+
+    if not username or not email or not password:
+        return jsonify({"error": "Missing required fields"}), 400
+
+    if User.query.filter_by(email=email).first():
+        return jsonify({"error": "Email already exists"}), 400
+
+    user = User(username=username, email=email, phone=phone)
+    user.set_password(password)
+    db.session.add(user)
     db.session.commit()
 
+    token = create_access_token(identity=user.id)
+    return jsonify({"token": token, "username": user.username, "email": user.email}), 201
 
-def seed_products():
-    if Product.query.count() > 0:
-        return
 
-    sample_products = [
-        {"name": "Indigo Running Shoes", "description": "Lightweight shoes for daily running.", "price": 79.99, "stock": 25, "category": "Footwear", "image_url": "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=600&q=80"},
-        {"name": "Trail Pro Sneakers", "description": "Durable trail sneakers with extra grip.", "price": 99.99, "stock": 20, "category": "Footwear", "image_url": "https://images.unsplash.com/photo-1460353581641-37baddab0fa2?auto=format&fit=crop&w=600&q=80"},
-        {"name": "Urban Hoodie", "description": "Comfortable hoodie for all seasons.", "price": 49.5, "stock": 40, "category": "Apparel", "image_url": "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=600&q=80"},
-        {"name": "Classic Denim Jacket", "description": "Stylish denim jacket with modern fit.", "price": 89.0, "stock": 15, "category": "Apparel", "image_url": "https://images.unsplash.com/photo-1521223890158-f9f7c3d5d504?auto=format&fit=crop&w=600&q=80"},
-        {"name": "Cotton T-Shirt Pack", "description": "Set of 3 premium cotton t-shirts.", "price": 35.99, "stock": 60, "category": "Apparel", "image_url": "https://images.unsplash.com/photo-1527719327859-c6ce80353573?auto=format&fit=crop&w=600&q=80"},
-        {"name": "Noise-Cancel Headphones", "description": "Immersive wireless over-ear headphones.", "price": 129.99, "stock": 18, "category": "Electronics", "image_url": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80"},
-        {"name": "Smart Fitness Watch", "description": "Track workouts, sleep, and heart rate.", "price": 149.99, "stock": 22, "category": "Electronics", "image_url": "https://images.unsplash.com/photo-1434493789847-2f02dc6ca35d?auto=format&fit=crop&w=600&q=80"},
-        {"name": "Bluetooth Speaker", "description": "Portable speaker with deep bass.", "price": 59.99, "stock": 35, "category": "Electronics", "image_url": "https://images.unsplash.com/photo-1589003077984-894e133dabab?auto=format&fit=crop&w=600&q=80"},
-        {"name": "Minimalist Backpack", "description": "Water-resistant backpack with laptop sleeve.", "price": 69.99, "stock": 27, "category": "Accessories", "image_url": "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=600&q=80"},
-        {"name": "Leather Wallet", "description": "Slim wallet with RFID protection.", "price": 39.99, "stock": 50, "category": "Accessories", "image_url": "https://images.unsplash.com/photo-1627123424574-724758594e93?auto=format&fit=crop&w=600&q=80"},
-    ]
+@app.post("/api/auth/login")
+def login():
+    data = request.json
+    email = data.get("email")
+    password = data.get("password")
 
-    for product_data in sample_products:
-        db.session.add(Product(**product_data))
+    if not email or not password:
+        return jsonify({"error": "Missing email or password"}), 400
+
+    user = User.query.filter_by(email=email).first()
+    if not user or not user.check_password(password):
+        return jsonify({"error": "Invalid credentials"}), 401
+
+    token = create_access_token(identity=user.id)
+    return jsonify({"token": token, "username": user.username, "email": user.email}), 200
+
+
+@app.get("/api/auth/me")
+@jwt_required()
+def get_current_user():
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+    return jsonify(user.to_dict()), 200
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# PRODUCT ROUTES
+# ═══════════════════════════════════════════════════════════════════════════
+
+@app.get("/api/products")
+def get_products():
+    # Query parameters
+    category = request.args.get("category")
+    subcategory = request.args.get("subcategory")
+    badge = request.args.get("badge")
+    search = request.args.get("search")
+    min_price = request.args.get("min_price", type=float)
+    max_price = request.args.get("max_price", type=float)
+    sort = request.args.get("sort", "newest")
+    page = request.args.get("page", 1, type=int)
+    per_page = request.args.get("per_page", 12, type=int)
+
+    query = Product.query
+
+    # Filters
+    if category:
+        query = query.filter(Product.category == category)
+    if subcategory:
+        query = query.filter(Product.subcategory == subcategory)
+    if badge:
+        query = query.filter(Product.badge == badge)
+    if search:
+        query = query.filter(
+            or_(
+                Product.name.ilike(f"%{search}%"),
+                Product.description.ilike(f"%{search}%")
+            )
+        )
+    if min_price is not None:
+        query = query.filter(Product.price >= min_price)
+    if max_price is not None:
+        query = query.filter(Product.price <= max_price)
+
+    # Sorting
+    if sort == "price_asc":
+        query = query.order_by(Product.price.asc())
+    elif sort == "price_desc":
+        query = query.order_by(Product.price.desc())
+    elif sort == "rating":
+        query = query.order_by(Product.rating.desc())
+    else:  # newest
+        query = query.order_by(Product.created_at.desc())
+
+    # Pagination
+    paginated = query.paginate(page=page, per_page=per_page, error_out=False)
+
+    return jsonify({
+        "products": [p.to_dict() for p in paginated.items],
+        "total": paginated.total,
+        "pages": paginated.pages,
+        "current_page": page
+    }), 200
+
+
+@app.get("/api/products/<int:product_id>")
+def get_product(product_id):
+    product = Product.query.get(product_id)
+    if not product:
+        return jsonify({"error": "Product not found"}), 404
+    return jsonify(product.to_dict()), 200
+
+
+@app.get("/api/products/featured")
+def get_featured_products():
+    products = Product.query.filter(
+        or_(Product.badge == "BESTSELLER", Product.badge == "NEW")
+    ).order_by(Product.rating.desc()).limit(8).all()
+    return jsonify([p.to_dict() for p in products]), 200
+
+
+@app.get("/api/products/related/<int:product_id>")
+def get_related_products(product_id):
+    product = Product.query.get(product_id)
+    if not product:
+        return jsonify({"error": "Product not found"}), 404
+
+    related = Product.query.filter(
+        Product.category == product.category,
+        Product.id != product_id
+    ).limit(4).all()
+    return jsonify([p.to_dict() for p in related]), 200
+
+
+@app.get("/api/categories")
+def get_categories():
+    categories = db.session.query(Product.category).distinct().all()
+    return jsonify([c[0] for c in categories]), 200
+
+
+@app.get("/api/subcategories")
+def get_subcategories():
+    subcategories = db.session.query(Product.subcategory).distinct().filter(Product.subcategory.isnot(None)).all()
+    return jsonify([s[0] for s in subcategories]), 200
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# CART ROUTES (JWT Protected)
+# ═══════════════════════════════════════════════════════════════════════════
+
+@app.get("/api/cart")
+@jwt_required()
+def get_cart():
+    user_id = get_jwt_identity()
+    cart_items = CartItem.query.filter_by(user_id=user_id).all()
+    return jsonify([item.to_dict() for item in cart_items]), 200
+
+
+@app.post("/api/cart/add")
+@jwt_required()
+def add_to_cart():
+    user_id = get_jwt_identity()
+    data = request.json
+    product_id = data.get("product_id")
+    quantity = data.get("quantity", 1)
+    size = data.get("size")
+    color = data.get("color")
+
+    if not product_id:
+        return jsonify({"error": "Product ID required"}), 400
+
+    product = Product.query.get(product_id)
+    if not product:
+        return jsonify({"error": "Product not found"}), 404
+
+    # Check if item already exists with same size/color
+    existing = CartItem.query.filter_by(
+        user_id=user_id,
+        product_id=product_id,
+        size=size,
+        color=color
+    ).first()
+
+    if existing:
+        existing.quantity += quantity
+        db.session.commit()
+        return jsonify(existing.to_dict()), 200
+
+    cart_item = CartItem(
+        user_id=user_id,
+        product_id=product_id,
+        quantity=quantity,
+        size=size,
+        color=color
+    )
+    db.session.add(cart_item)
     db.session.commit()
+    return jsonify(cart_item.to_dict()), 201
 
 
-app = create_app()
+@app.put("/api/cart/update/<int:item_id>")
+@jwt_required()
+def update_cart_item(item_id):
+    user_id = get_jwt_identity()
+    data = request.json
+    quantity = data.get("quantity")
+
+    if quantity is None or quantity < 1:
+        return jsonify({"error": "Invalid quantity"}), 400
+
+    cart_item = CartItem.query.filter_by(id=item_id, user_id=user_id).first()
+    if not cart_item:
+        return jsonify({"error": "Cart item not found"}), 404
+
+    cart_item.quantity = quantity
+    db.session.commit()
+    return jsonify(cart_item.to_dict()), 200
+
+
+@app.delete("/api/cart/remove/<int:item_id>")
+@jwt_required()
+def remove_cart_item(item_id):
+    user_id = get_jwt_identity()
+    cart_item = CartItem.query.filter_by(id=item_id, user_id=user_id).first()
+    if not cart_item:
+        return jsonify({"error": "Cart item not found"}), 404
+
+    db.session.delete(cart_item)
+    db.session.commit()
+    return jsonify({"message": "Item removed"}), 200
+
+
+@app.delete("/api/cart/clear")
+@jwt_required()
+def clear_cart():
+    user_id = get_jwt_identity()
+    CartItem.query.filter_by(user_id=user_id).delete()
+    db.session.commit()
+    return jsonify({"message": "Cart cleared"}), 200
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# WISHLIST ROUTES (JWT Protected)
+# ═══════════════════════════════════════════════════════════════════════════
+
+@app.get("/api/wishlist")
+@jwt_required()
+def get_wishlist():
+    user_id = get_jwt_identity()
+    wishlist_items = Wishlist.query.filter_by(user_id=user_id).all()
+    return jsonify([item.to_dict() for item in wishlist_items]), 200
+
+
+@app.post("/api/wishlist/add")
+@jwt_required()
+def add_to_wishlist():
+    user_id = get_jwt_identity()
+    data = request.json
+    product_id = data.get("product_id")
+
+    if not product_id:
+        return jsonify({"error": "Product ID required"}), 400
+
+    product = Product.query.get(product_id)
+    if not product:
+        return jsonify({"error": "Product not found"}), 404
+
+    existing = Wishlist.query.filter_by(user_id=user_id, product_id=product_id).first()
+    if existing:
+        return jsonify({"message": "Already in wishlist"}), 200
+
+    wishlist_item = Wishlist(user_id=user_id, product_id=product_id)
+    db.session.add(wishlist_item)
+    db.session.commit()
+    return jsonify(wishlist_item.to_dict()), 201
+
+
+@app.delete("/api/wishlist/remove/<int:item_id>")
+@jwt_required()
+def remove_from_wishlist(item_id):
+    user_id = get_jwt_identity()
+    wishlist_item = Wishlist.query.filter_by(id=item_id, user_id=user_id).first()
+    if not wishlist_item:
+        return jsonify({"error": "Wishlist item not found"}), 404
+
+    db.session.delete(wishlist_item)
+    db.session.commit()
+    return jsonify({"message": "Item removed from wishlist"}), 200
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# ORDER ROUTES (JWT Protected)
+# ═══════════════════════════════════════════════════════════════════════════
+
+@app.post("/api/orders/checkout")
+@jwt_required()
+def checkout():
+    user_id = get_jwt_identity()
+    data = request.json
+    address_data = data.get("address")
+    payment_method = data.get("payment_method", "COD")
+
+    # Get cart items
+    cart_items = CartItem.query.filter_by(user_id=user_id).all()
+    if not cart_items:
+        return jsonify({"error": "Cart is empty"}), 400
+
+    # Create or use address
+    address_id = None
+    if address_data:
+        if isinstance(address_data, int):
+            address_id = address_data
+        else:
+            address = Address(
+                user_id=user_id,
+                full_name=address_data.get("full_name"),
+                phone=address_data.get("phone"),
+                line1=address_data.get("line1"),
+                line2=address_data.get("line2"),
+                city=address_data.get("city"),
+                state=address_data.get("state"),
+                pincode=address_data.get("pincode"),
+                is_default=address_data.get("is_default", False)
+            )
+            db.session.add(address)
+            db.session.flush()
+            address_id = address.id
+
+    # Calculate total
+    total = sum(item.product.price * item.quantity for item in cart_items)
+
+    # Create order
+    order = Order(
+        user_id=user_id,
+        address_id=address_id,
+        total=total,
+        payment_method=payment_method,
+        status="pending"
+    )
+    db.session.add(order)
+    db.session.flush()
+
+    # Create order items
+    for cart_item in cart_items:
+        order_item = OrderItem(
+            order_id=order.id,
+            product_id=cart_item.product_id,
+            quantity=cart_item.quantity,
+            size=cart_item.size,
+            price=cart_item.product.price
+        )
+        db.session.add(order_item)
+
+    # Clear cart
+    CartItem.query.filter_by(user_id=user_id).delete()
+
+    db.session.commit()
+    return jsonify(order.to_dict()), 201
+
+
+@app.get("/api/orders")
+@jwt_required()
+def get_orders():
+    user_id = get_jwt_identity()
+    orders = Order.query.filter_by(user_id=user_id).order_by(Order.created_at.desc()).all()
+    return jsonify([order.to_dict() for order in orders]), 200
+
+
+@app.get("/api/orders/<int:order_id>")
+@jwt_required()
+def get_order(order_id):
+    user_id = get_jwt_identity()
+    order = Order.query.filter_by(id=order_id, user_id=user_id).first()
+    if not order:
+        return jsonify({"error": "Order not found"}), 404
+    return jsonify(order.to_dict()), 200
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# ADDRESS ROUTES (JWT Protected)
+# ═══════════════════════════════════════════════════════════════════════════
+
+@app.get("/api/addresses")
+@jwt_required()
+def get_addresses():
+    user_id = get_jwt_identity()
+    addresses = Address.query.filter_by(user_id=user_id).all()
+    return jsonify([addr.to_dict() for addr in addresses]), 200
+
+
+@app.post("/api/addresses/add")
+@jwt_required()
+def add_address():
+    user_id = get_jwt_identity()
+    data = request.json
+
+    address = Address(
+        user_id=user_id,
+        full_name=data.get("full_name"),
+        phone=data.get("phone"),
+        line1=data.get("line1"),
+        line2=data.get("line2"),
+        city=data.get("city"),
+        state=data.get("state"),
+        pincode=data.get("pincode"),
+        is_default=data.get("is_default", False)
+    )
+    db.session.add(address)
+    db.session.commit()
+    return jsonify(address.to_dict()), 201
+
+
+@app.put("/api/addresses/<int:address_id>")
+@jwt_required()
+def update_address(address_id):
+    user_id = get_jwt_identity()
+    address = Address.query.filter_by(id=address_id, user_id=user_id).first()
+    if not address:
+        return jsonify({"error": "Address not found"}), 404
+
+    data = request.json
+    address.full_name = data.get("full_name", address.full_name)
+    address.phone = data.get("phone", address.phone)
+    address.line1 = data.get("line1", address.line1)
+    address.line2 = data.get("line2", address.line2)
+    address.city = data.get("city", address.city)
+    address.state = data.get("state", address.state)
+    address.pincode = data.get("pincode", address.pincode)
+    address.is_default = data.get("is_default", address.is_default)
+
+    db.session.commit()
+    return jsonify(address.to_dict()), 200
+
+
+@app.delete("/api/addresses/<int:address_id>")
+@jwt_required()
+def delete_address(address_id):
+    user_id = get_jwt_identity()
+    address = Address.query.filter_by(id=address_id, user_id=user_id).first()
+    if not address:
+        return jsonify({"error": "Address not found"}), 404
+
+    db.session.delete(address)
+    db.session.commit()
+    return jsonify({"message": "Address deleted"}), 200
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# DATABASE INITIALIZATION
+# ═══════════════════════════════════════════════════════════════════════════
+
+with app.app_context():
+    db.create_all()
+    print("✅ Database tables created")
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5001, debug=True)
