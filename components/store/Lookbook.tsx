@@ -18,8 +18,8 @@ export default function Lookbook() {
   return (
     <section className="py-16 md:py-24 px-4 md:px-8 max-w-7xl mx-auto">
       <div className="text-center mb-10 md:mb-12">
-        <p className="text-[#E63946] text-xs font-bold tracking-[0.3em] mb-2">COMMUNITY VIBES</p>
-        <RevealText text="#DRIPSTORE 📸" className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight mb-4 justify-center" />
+        <p className="text-[#E63946] text-xs font-bold tracking-[0.18em] mb-2">COMMUNITY VIBES</p>
+        <RevealText text="#DRIPSTORE 📸" className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight mb-4 justify-center" />
         <p className="text-gray-400 text-sm">Tag us for a chance to be featured</p>
       </div>
 

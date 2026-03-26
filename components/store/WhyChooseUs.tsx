@@ -41,7 +41,7 @@ export default function WhyChooseUs() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
-              className="bg-white rounded-2xl p-7 md:p-9 flex flex-col gap-5 hover:shadow-lg transition-shadow"
+              className="bg-white border border-black/5 rounded-2xl p-7 md:p-9 flex flex-col gap-5 hover:shadow-lg transition-shadow"
             >
               <div
                 className="w-12 h-12 rounded-2xl flex items-center justify-center"

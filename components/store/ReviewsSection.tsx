@@ -48,9 +48,9 @@ export default function ReviewsSection() {
     <section className="py-16 md:py-24">
       <div className="max-w-7xl mx-auto px-4 md:px-8">
         <div className="text-center mb-12 md:mb-16">
-          <p className="text-[#E63946] text-xs font-bold tracking-[0.3em] mb-3">REAL PEOPLE, REAL REVIEWS</p>
+          <p className="text-[#E63946] text-xs font-bold tracking-[0.18em] mb-3">REAL PEOPLE, REAL REVIEWS</p>
           <div className="flex justify-center">
-            <RevealText text="THEY LOVE IT" className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight mb-6" />
+            <RevealText text="THEY LOVE IT" className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight mb-6" />
           </div>
           <div className="flex items-center justify-center gap-2">
             <div className="flex">
@@ -71,7 +71,7 @@ export default function ReviewsSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
-              className="bg-[#F8F5F0] rounded-2xl p-7 flex flex-col justify-between gap-5 hover:-translate-y-1 hover:shadow-lg transition-all duration-300"
+              className="bg-[#F8F5F0] border border-black/5 rounded-2xl p-7 flex flex-col justify-between gap-5 hover:-translate-y-1 hover:shadow-lg transition-all duration-300"
             >
               <div>
                 <Quote size={24} className="text-[#E63946] mb-3 opacity-60" />

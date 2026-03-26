@@ -82,7 +82,7 @@ export default function NewArrivals() {
         <MagneticButton className="inline-block">
           <Link
             href="/shop"
-            className="group inline-flex items-center gap-3 px-11 py-4 bg-[#0A0A0A] text-white font-black text-sm tracking-[0.18em] rounded-full hover:bg-[#E63946] transition-all duration-300 hover:gap-5"
+            className="group inline-flex items-center gap-3 px-11 py-4 bg-[#0A0A0A] text-white font-black text-sm tracking-[0.08em] rounded-full hover:bg-[#E63946] transition-all duration-300 hover:gap-5"
           >
             VIEW ALL PRODUCTS
             <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />

@@ -115,18 +115,18 @@ export default function HeroBanner() {
                 className="flex flex-wrap items-center gap-3 mb-7 md:mb-8"
               >
                 <span
-                  className="text-xs font-bold tracking-[0.3em] px-3 py-1.5 rounded-full border"
+                  className="text-xs font-bold tracking-[0.18em] px-3 py-1.5 rounded-full border"
                   style={{ color: slide.accent, borderColor: slide.accent }}
                 >
                   {slide.tag}
                 </span>
-                <span className="text-xs font-semibold tracking-[0.2em] opacity-50" style={{ color: slide.textColor }}>
+                <span className="text-xs font-semibold tracking-[0.14em] opacity-60" style={{ color: slide.textColor }}>
                   {slide.eyebrow}
                 </span>
               </motion.div>
 
               <div className="mb-7 md:mb-8">
-                  {slide.title.map((word, i) => (
+                {slide.title.map((word, i) => (
                   <motion.div
                     key={word}
                     initial={{ opacity: 0, y: 60 }}
@@ -135,7 +135,7 @@ export default function HeroBanner() {
                     className="overflow-hidden"
                   >
                     <h1
-                      className="text-[14vw] sm:text-[10.5vw] md:text-[8.5vw] lg:text-[7vw] font-black leading-[0.9] tracking-[-0.03em]"
+                      className="text-[13vw] sm:text-[9.5vw] md:text-[8vw] lg:text-[6.5vw] font-black leading-[0.92] tracking-[-0.02em]"
                       style={{ color: slide.textColor }}
                     >
                       {word}
@@ -148,7 +148,7 @@ export default function HeroBanner() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.45 }}
-                className="text-base md:text-lg mb-9 md:mb-10 leading-8 max-w-xl font-medium opacity-85"
+                className="text-base md:text-lg mb-9 md:mb-10 leading-relaxed max-w-xl font-medium opacity-90"
                 style={{ color: slide.textColor }}
               >
                 {slide.subtitle}
@@ -163,7 +163,7 @@ export default function HeroBanner() {
                 <MagneticButton className="px-0 py-0">
                   <Link
                     href={slide.link}
-                    className="group flex items-center gap-2 px-7 sm:px-9 py-4 font-extrabold text-xs sm:text-sm tracking-[0.12em] rounded-full transition-all duration-300 hover:gap-4"
+                    className="group flex items-center gap-2 px-7 sm:px-9 py-4 font-bold text-xs sm:text-sm tracking-[0.08em] rounded-full transition-all duration-300 hover:gap-4"
                     style={{ background: slide.accent, color: "#FFFFFF" }}
                   >
                     {slide.cta}
@@ -173,7 +173,7 @@ export default function HeroBanner() {
                 <MagneticButton className="px-0 py-0">
                   <Link
                     href={slide.link2}
-                    className="px-7 sm:px-9 py-4 font-extrabold text-xs sm:text-sm tracking-[0.12em] rounded-full border-2 transition-all duration-300 hover:opacity-70"
+                    className="px-7 sm:px-9 py-4 font-bold text-xs sm:text-sm tracking-[0.08em] rounded-full border-2 transition-all duration-300 hover:opacity-70"
                     style={{ borderColor: slide.textColor, color: slide.textColor }}
                   >
                     {slide.cta2}
@@ -185,13 +185,13 @@ export default function HeroBanner() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.65 }}
-                className="flex flex-wrap gap-x-8 gap-y-4 md:gap-x-12 md:gap-y-5 border-t pt-6 md:pt-7"
+                className="flex flex-wrap gap-x-6 gap-y-4 md:gap-x-10 md:gap-y-5 border-t pt-6 md:pt-7"
                 style={{ borderColor: `${slide.textColor}24` }}
               >
                 {[slide.stat1, slide.stat2, "₹599 Free Ship"].map((stat, i) => (
-                  <div key={i} className="min-w-[132px]">
+                  <div key={i} className="min-w-[126px]">
                     <div className="w-7 h-0.5 mb-2.5" style={{ background: slide.accent }} />
-                    <p className="text-[11px] font-bold tracking-[0.12em] uppercase opacity-80" style={{ color: slide.textColor }}>
+                    <p className="text-[11px] font-semibold tracking-[0.08em] uppercase opacity-85" style={{ color: slide.textColor }}>
                       {stat}
                     </p>
                   </div>

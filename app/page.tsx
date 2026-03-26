@@ -25,7 +25,7 @@ export default function HomePage() {
               <p className="text-4xl sm:text-5xl font-black text-[#E63946]">
                 <AnimatedCounter end={stat.end} suffix={stat.suffix} />
               </p>
-              <p className="text-[11px] tracking-[0.22em] text-gray-400 mt-2">{stat.label}</p>
+              <p className="text-[11px] tracking-[0.12em] text-gray-400 mt-2">{stat.label}</p>
             </div>
           ))}
         </div>

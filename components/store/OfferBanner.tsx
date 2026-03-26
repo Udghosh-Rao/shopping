@@ -16,22 +16,12 @@ export default function OfferBanner() {
         viewport={{ once: true }}
         className="relative bg-[#0A0A0A] rounded-[2rem] overflow-hidden px-7 sm:px-10 md:px-16 py-12 md:py-14 flex flex-col md:flex-row items-start md:items-center justify-between gap-8 md:gap-10"
       >
-        <div className="absolute inset-0 opacity-5">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div
-              key={i}
-              className="absolute text-white font-black text-9xl select-none"
-              style={{ top: `${(i % 2) * 60}%`, left: `${i * 18}%`, transform: "rotate(-15deg)" }}
-            >
-              %
-            </div>
-          ))}
-        </div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(230,57,70,0.22),transparent_50%)]" />
 
         <div className="relative z-10">
           <div className="flex items-center gap-2 mb-3">
             <Tag size={16} className="text-[#E63946]" />
-            <span className="text-[#E63946] text-xs font-bold tracking-[0.3em]">LIMITED TIME</span>
+            <span className="text-[#E63946] text-xs font-bold tracking-[0.18em]">LIMITED TIME</span>
           </div>
           <RevealText text="UP TO 50% OFF" className="text-3xl sm:text-4xl md:text-5xl font-black text-white leading-tight tracking-tight" />
           <p className="text-gray-400 mt-2 text-sm">
@@ -45,7 +35,7 @@ export default function OfferBanner() {
         <MagneticButton className="relative z-10">
           <Link
             href="/shop?filter=sale"
-            className="group flex items-center gap-3 px-8 py-4 bg-[#E63946] text-white font-black text-sm tracking-widest rounded-xl hover:bg-red-700 transition-colors flex-shrink-0"
+            className="group flex items-center gap-3 px-8 py-4 bg-[#E63946] text-white font-black text-sm tracking-[0.08em] rounded-full hover:bg-red-700 transition-colors flex-shrink-0"
           >
             SHOP SALE
             <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
