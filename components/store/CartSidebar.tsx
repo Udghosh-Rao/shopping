@@ -73,7 +73,7 @@ export default function CartSidebar() {
               <Link
                 href="/cart"
                 onClick={() => setOpen(false)}
-                className="block w-full py-3 text-center bg-[#0A0A0A] text-white rounded-xl font-black tracking-widest text-sm hover:bg-[#E63946] transition-colors"
+                className="block w-full py-3 text-center bg-[#0A0A0A] text-white rounded-xl font-black tracking-[0.08em] text-sm hover:bg-[#E63946] transition-colors"
               >
                 GO TO CART
               </Link>

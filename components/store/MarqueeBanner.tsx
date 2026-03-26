@@ -25,7 +25,7 @@ export default function MarqueeBanner() {
         className="flex whitespace-nowrap will-change-transform"
       >
         {repeated.map((item, i) => (
-          <span key={i} className="text-[11px] font-bold tracking-[0.2em] mx-6 flex-shrink-0">
+          <span key={i} className="text-[11px] font-bold tracking-[0.1em] mx-6 flex-shrink-0">
             {item}
           </span>
         ))}

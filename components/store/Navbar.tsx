@@ -51,7 +51,7 @@ export default function Navbar() {
 
   return (
     <>
-      <div className="bg-[#E63946] text-white text-center text-[11px] py-2 font-bold tracking-[0.25em]">
+      <div className="bg-[#E63946] text-white text-center text-[11px] py-2 font-bold tracking-[0.12em]">
         🚀 FREE SHIPPING ABOVE ₹599 &nbsp;|&nbsp; USE CODE <span className="bg-white text-[#E63946] px-1.5 py-0.5 rounded font-black">DRIP50</span>
         &nbsp;FOR 50% OFF
       </div>
@@ -81,7 +81,7 @@ export default function Navbar() {
 
             <div className="hidden md:flex items-center gap-1">
               {navLinks.map((link) => (
-                <Link key={link.label} href={link.href} className="relative px-4 py-2 text-xs font-bold tracking-widest text-muted hover:text-accent transition-colors group">
+                <Link key={link.label} href={link.href} className="relative px-4 py-2 text-xs font-bold tracking-[0.08em] text-muted hover:text-accent transition-colors group">
                   {link.label}
                   <span className="absolute bottom-0 left-4 right-4 h-0.5 bg-[#E63946] scale-x-0 group-hover:scale-x-100 transition-transform duration-200 origin-left" />
                 </Link>
@@ -142,7 +142,7 @@ export default function Navbar() {
                 )}
                 {!searchQuery && (
                   <div className="pt-3">
-                    <p className="text-xs font-bold tracking-widest text-muted mb-2">TRENDING</p>
+                    <p className="text-xs font-bold tracking-[0.08em] text-muted mb-2">TRENDING</p>
                     <div className="flex flex-wrap gap-2">
                       {["oversized tee", "anime tshirt", "sneakers", "hoodies", "sale"].map((tag) => (
                         <button key={tag} onClick={() => setSearchQuery(tag)} className="px-3 py-1.5 bg-[var(--input-bg)] text-xs font-semibold rounded-full hover:bg-[#E63946] hover:text-white transition-colors">{tag}</button>

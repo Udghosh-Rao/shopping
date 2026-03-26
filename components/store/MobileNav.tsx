@@ -29,7 +29,7 @@ export default function MobileNav() {
               {active && <motion.div layoutId="mobileNavBg" className="absolute top-1 w-10 h-10 bg-[#E63946]/10 rounded-2xl" />}
               <Icon size={19} className={`relative z-10 transition-colors ${active ? "text-[#E63946]" : "text-gray-400"}`} />
               <span
-                className={`text-[9px] font-bold tracking-widest relative z-10 transition-colors ${
+                className={`text-[9px] font-bold tracking-[0.08em] relative z-10 transition-colors ${
                   active ? "text-[#E63946]" : "text-gray-400"
                 }`}
               >
@@ -56,7 +56,7 @@ export default function MobileNav() {
               )}
             </AnimatePresence>
           </div>
-          <span className="text-[9px] font-bold tracking-widest text-gray-400">BAG</span>
+          <span className="text-[9px] font-bold tracking-[0.08em] text-gray-400">BAG</span>
         </Link>
       </div>
     </div>
