@@ -84,7 +84,7 @@ def login():
 @app.get("/api/auth/me")
 @jwt_required()
 def get_current_user():
-    user_id = int(get_jwt_identity())
+    user_id = get_jwt_identity()
     user = User.query.get(int(user_id))
     if not user:
         return jsonify({"error": "User not found"}), 404
@@ -277,7 +277,7 @@ def get_subcategories():
 @app.get("/api/cart")
 @jwt_required()
 def get_cart():
-    user_id = int(get_jwt_identity())
+    user_id = get_jwt_identity()
     cart_items = CartItem.query.filter_by(user_id=user_id).all()
     return jsonify([item.to_dict() for item in cart_items]), 200
 
@@ -285,7 +285,7 @@ def get_cart():
 @app.post("/api/cart/add")
 @jwt_required()
 def add_to_cart():
-    user_id = int(get_jwt_identity())
+    user_id = get_jwt_identity()
     data = request.json
     product_id = data.get("product_id")
     quantity = data.get("quantity", 1)
@@ -315,7 +315,7 @@ def add_to_cart():
 @app.put("/api/cart/update/<int:item_id>")
 @jwt_required()
 def update_cart_item(item_id):
-    user_id = int(get_jwt_identity())
+    user_id = get_jwt_identity()
     data = request.json
     quantity = data.get("quantity")
 
@@ -334,7 +334,7 @@ def update_cart_item(item_id):
 @app.delete("/api/cart/remove/<int:item_id>")
 @jwt_required()
 def remove_cart_item(item_id):
-    user_id = int(get_jwt_identity())
+    user_id = get_jwt_identity()
     cart_item = CartItem.query.filter_by(id=item_id, user_id=user_id).first()
     if not cart_item:
         return jsonify({"error": "Cart item not found"}), 404
@@ -347,7 +347,7 @@ def remove_cart_item(item_id):
 @app.delete("/api/cart/clear")
 @jwt_required()
 def clear_cart():
-    user_id = int(get_jwt_identity())
+    user_id = get_jwt_identity()
     CartItem.query.filter_by(user_id=user_id).delete()
     db.session.commit()
     return jsonify({"message": "Cart cleared"}), 200
@@ -360,7 +360,7 @@ def clear_cart():
 @app.get("/api/wishlist")
 @jwt_required()
 def get_wishlist():
-    user_id = int(get_jwt_identity())
+    user_id = get_jwt_identity()
     wishlist_items = Wishlist.query.filter_by(user_id=user_id).all()
     return jsonify([item.to_dict() for item in wishlist_items]), 200
 
@@ -368,7 +368,7 @@ def get_wishlist():
 @app.post("/api/wishlist/add")
 @jwt_required()
 def add_to_wishlist():
-    user_id = int(get_jwt_identity())
+    user_id = get_jwt_identity()
     data = request.json
     product_id = data.get("product_id")
 
@@ -392,7 +392,7 @@ def add_to_wishlist():
 @app.delete("/api/wishlist/remove/<int:item_id>")
 @jwt_required()
 def remove_from_wishlist(item_id):
-    user_id = int(get_jwt_identity())
+    user_id = get_jwt_identity()
     wishlist_item = Wishlist.query.filter_by(id=item_id, user_id=user_id).first()
     if not wishlist_item:
         return jsonify({"error": "Wishlist item not found"}), 404
@@ -409,7 +409,7 @@ def remove_from_wishlist(item_id):
 @app.post("/api/orders/checkout")
 @jwt_required()
 def checkout():
-    user_id = int(get_jwt_identity())
+    user_id = get_jwt_identity()
     data = request.json
     address_data = data.get("address")
     payment_method = data.get("payment_method", "COD")
@@ -463,7 +463,7 @@ def checkout():
 @app.get("/api/orders")
 @jwt_required()
 def get_orders():
-    user_id = int(get_jwt_identity())
+    user_id = get_jwt_identity()
     orders = Order.query.filter_by(user_id=user_id).order_by(Order.created_at.desc()).all()
     return jsonify([order.to_dict() for order in orders]), 200
 
@@ -471,7 +471,7 @@ def get_orders():
 @app.get("/api/orders/<int:order_id>")
 @jwt_required()
 def get_order(order_id):
-    user_id = int(get_jwt_identity())
+    user_id = get_jwt_identity()
     order = Order.query.filter_by(id=order_id, user_id=user_id).first()
     if not order:
         return jsonify({"error": "Order not found"}), 404
@@ -485,7 +485,7 @@ def get_order(order_id):
 @app.get("/api/addresses")
 @jwt_required()
 def get_addresses():
-    user_id = int(get_jwt_identity())
+    user_id = get_jwt_identity()
     addresses = Address.query.filter_by(user_id=user_id).all()
     return jsonify([addr.to_dict() for addr in addresses]), 200
 
@@ -493,7 +493,7 @@ def get_addresses():
 @app.post("/api/addresses/add")
 @jwt_required()
 def add_address():
-    user_id = int(get_jwt_identity())
+    user_id = get_jwt_identity()
     data = request.json
 
     address = Address(
@@ -515,7 +515,7 @@ def add_address():
 @app.put("/api/addresses/<int:address_id>")
 @jwt_required()
 def update_address(address_id):
-    user_id = int(get_jwt_identity())
+    user_id = get_jwt_identity()
     address = Address.query.filter_by(id=address_id, user_id=user_id).first()
     if not address:
         return jsonify({"error": "Address not found"}), 404
@@ -537,7 +537,7 @@ def update_address(address_id):
 @app.delete("/api/addresses/<int:address_id>")
 @jwt_required()
 def delete_address(address_id):
-    user_id = int(get_jwt_identity())
+    user_id = get_jwt_identity()
     address = Address.query.filter_by(id=address_id, user_id=user_id).first()
     if not address:
         return jsonify({"error": "Address not found"}), 404
