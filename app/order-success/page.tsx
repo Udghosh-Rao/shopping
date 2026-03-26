@@ -1,119 +1,86 @@
-'use client';
+"use client";
+import { motion } from "framer-motion";
+import Link from "next/link";
+import { CheckCircle, Package, Home } from "lucide-react";
+import { useEffect } from "react";
+import { useCart } from "@/lib/cartStore";
 
-import { Suspense } from 'react';
-import { motion } from 'framer-motion';
-import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
-import { CheckCircle, Package, ArrowRight } from 'lucide-react';
-
-function OrderSuccessContent() {
-  const searchParams = useSearchParams();
-  const orderId = searchParams.get('orderId');
-
-  // Calculate estimated delivery (5-7 days from now)
-  const deliveryDate = new Date();
-  deliveryDate.setDate(deliveryDate.getDate() + 5 + Math.floor(Math.random() * 3));
-  const formattedDate = deliveryDate.toLocaleDateString('en-IN', {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  });
+export default function OrderSuccessPage() {
+  const { clearCart } = useCart();
+  useEffect(() => {
+    clearCart();
+  }, [clearCart]);
 
   return (
-    <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
+    <div className="min-h-screen bg-[#F8F5F0] flex items-center justify-center px-4 py-16">
       <motion.div
-        initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
-        transition={{ type: 'spring', damping: 15, stiffness: 200 }}
-        className="w-24 h-24 mx-auto mb-8 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center"
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
+        className="bg-white rounded-3xl p-8 md:p-12 max-w-lg w-full text-center shadow-xl relative"
       >
         <motion.div
           initial={{ scale: 0, rotate: -180 }}
           animate={{ scale: 1, rotate: 0 }}
-          transition={{ delay: 0.3, type: 'spring', damping: 12 }}
+          transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+          className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6"
         >
-          <CheckCircle className="w-12 h-12 text-green-600" />
+          <CheckCircle size={40} className="text-green-500" />
+        </motion.div>
+
+        {[...Array(6)].map((_, i) => (
+          <motion.div
+            key={i}
+            initial={{ scale: 0, opacity: 1 }}
+            animate={{
+              scale: [0, 1, 0],
+              x: [(i % 2 === 0 ? -1 : 1) * (30 + i * 10), 0],
+              y: [-50 - i * 10, 0],
+              opacity: [1, 1, 0],
+            }}
+            transition={{ delay: 0.3 + i * 0.05, duration: 0.8 }}
+            className="absolute w-2 h-2 rounded-full"
+            style={{
+              background: i % 2 === 0 ? "#E63946" : "#0A0A0A",
+              left: "50%",
+              top: "30%",
+            }}
+          />
+        ))}
+
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
+          <p className="text-[#E63946] text-xs font-bold tracking-[0.3em] mb-2">ORDER CONFIRMED</p>
+          <h1 className="text-4xl font-black tracking-tight mb-3">YOU'RE ALL SET! 🎉</h1>
+          <p className="text-gray-500 mb-8 leading-relaxed">
+            Your order has been placed and is being processed. You'll receive a confirmation email shortly.
+          </p>
+
+          <div className="bg-[#F8F5F0] rounded-2xl p-5 mb-8 flex items-center gap-4">
+            <div className="w-12 h-12 bg-[#0A0A0A] rounded-xl flex items-center justify-center flex-shrink-0">
+              <Package size={22} className="text-white" />
+            </div>
+            <div className="text-left">
+              <p className="font-black text-sm">Estimated Delivery</p>
+              <p className="text-gray-500 text-sm">5–7 business days</p>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Link
+              href="/profile"
+              className="flex-1 flex items-center justify-center gap-2 py-3.5 border-2 border-[#0A0A0A] font-bold text-sm rounded-2xl hover:bg-[#0A0A0A] hover:text-white transition-all"
+            >
+              <Package size={16} /> TRACK ORDER
+            </Link>
+            <Link
+              href="/"
+              className="flex-1 flex items-center justify-center gap-2 py-3.5 bg-[#E63946] text-white font-bold text-sm rounded-2xl hover:bg-red-700 transition-colors"
+            >
+              <Home size={16} /> KEEP SHOPPING
+            </Link>
+          </div>
         </motion.div>
       </motion.div>
-
-      <motion.h1
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
-        className="text-3xl sm:text-4xl font-bold mb-3"
-      >
-        Order Placed! 🎉
-      </motion.h1>
-
-      <motion.p
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5 }}
-        className="text-muted text-lg mb-8"
-      >
-        Thank you for shopping with UrbanDrip
-      </motion.p>
-
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6 }}
-        className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6 sm:p-8 mb-8 text-left space-y-4"
-      >
-        {orderId && (
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-muted">Order ID</span>
-            <span className="text-sm font-mono font-medium">{orderId}</span>
-          </div>
-        )}
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-muted">Estimated Delivery</span>
-          <span className="text-sm font-medium">{formattedDate}</span>
-        </div>
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-muted">Status</span>
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs font-semibold rounded-lg">
-            <Package className="w-3 h-3" />
-            Processing
-          </span>
-        </div>
-      </motion.div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.7 }}
-        className="flex flex-col sm:flex-row items-center justify-center gap-3"
-      >
-        <Link
-          href="/shop"
-          className="inline-flex items-center gap-2 px-8 py-3.5 bg-foreground text-background font-semibold rounded-xl hover:bg-accent hover:text-white transition-colors"
-        >
-          Continue Shopping
-          <ArrowRight className="w-4 h-4" />
-        </Link>
-        <Link
-          href="/profile?tab=orders"
-          className="inline-flex items-center gap-2 px-8 py-3.5 border border-[var(--border)] font-semibold rounded-xl hover:bg-[var(--input-bg)] transition-colors"
-        >
-          View Orders
-        </Link>
-      </motion.div>
     </div>
-  );
-}
-
-export default function OrderSuccessPage() {
-  return (
-    <Suspense fallback={
-      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
-        <div className="w-24 h-24 mx-auto mb-8 rounded-full bg-[var(--skeleton)] animate-pulse" />
-        <div className="h-8 w-64 mx-auto mb-4 bg-[var(--skeleton)] animate-pulse rounded" />
-        <div className="h-6 w-48 mx-auto bg-[var(--skeleton)] animate-pulse rounded" />
-      </div>
-    }>
-      <OrderSuccessContent />
-    </Suspense>
   );
 }
