@@ -1,6 +1,8 @@
 "use client";
+
 import { motion } from "framer-motion";
 import { Star, Quote } from "lucide-react";
+import RevealText from "@/components/ui/RevealText";
 
 const reviews = [
   {
@@ -47,7 +49,9 @@ export default function ReviewsSection() {
       <div className="max-w-7xl mx-auto px-4 md:px-8">
         <div className="text-center mb-14">
           <p className="text-[#E63946] text-xs font-bold tracking-[0.3em] mb-3">REAL PEOPLE, REAL REVIEWS</p>
-          <h2 className="text-4xl md:text-5xl font-black tracking-tight mb-5">THEY LOVE IT</h2>
+          <div className="flex justify-center">
+            <RevealText text="THEY LOVE IT" className="text-4xl md:text-5xl font-black tracking-tight mb-5" />
+          </div>
           <div className="flex items-center justify-center gap-2">
             <div className="flex">
               {[...Array(5)].map((_, i) => (
@@ -80,15 +84,14 @@ export default function ReviewsSection() {
                   ))}
                 </div>
                 <div className="flex items-center gap-3">
-                  <div
-                    className="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-black flex-shrink-0"
-                    style={{ background: review.color }}
-                  >
+                  <div className="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-black flex-shrink-0" style={{ background: review.color }}>
                     {review.avatar}
                   </div>
                   <div>
                     <p className="font-bold text-sm text-[#0A0A0A]">{review.name}</p>
-                    <p className="text-xs text-gray-400">{review.location} · {review.product}</p>
+                    <p className="text-xs text-gray-400">
+                      {review.location} · {review.product}
+                    </p>
                   </div>
                 </div>
               </div>

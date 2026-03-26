@@ -1,9 +1,12 @@
 "use client";
+
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import ProductCard from "./ProductCard";
 import { useEffect, useState } from "react";
+import RevealText from "@/components/ui/RevealText";
+import MagneticButton from "@/components/ui/MagneticButton";
 
 interface Product {
   _id: string;
@@ -47,7 +50,7 @@ export default function NewArrivals() {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
         <div>
           <p className="text-[#E63946] text-xs font-bold tracking-[0.3em] mb-2">JUST DROPPED</p>
-          <h2 className="text-4xl md:text-5xl font-black tracking-tight leading-none">NEW ARRIVALS</h2>
+          <RevealText text="NEW ARRIVALS" className="text-4xl md:text-5xl font-black tracking-tight leading-none" />
         </div>
 
         <div className="flex gap-2 flex-wrap">
@@ -84,13 +87,7 @@ export default function NewArrivals() {
       ) : (
         <motion.div layout className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
           {products.map((product, i) => (
-            <motion.div
-              key={product._id}
-              layout
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.05 }}
-            >
+            <motion.div key={product._id} layout initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
               <ProductCard product={product} />
             </motion.div>
           ))}
@@ -98,13 +95,15 @@ export default function NewArrivals() {
       )}
 
       <div className="mt-12 text-center">
-        <Link
-          href="/shop"
-          className="group inline-flex items-center gap-3 px-10 py-4 border-2 border-[#0A0A0A] font-bold text-sm tracking-widest hover:bg-[#0A0A0A] hover:text-white transition-all duration-300"
-        >
-          VIEW ALL PRODUCTS
-          <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-        </Link>
+        <MagneticButton className="inline-block">
+          <Link
+            href="/shop"
+            className="group inline-flex items-center gap-3 px-10 py-4 border-2 border-[#0A0A0A] font-bold text-sm tracking-widest hover:bg-[#0A0A0A] hover:text-white transition-all duration-300"
+          >
+            VIEW ALL PRODUCTS
+            <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+          </Link>
+        </MagneticButton>
       </div>
     </section>
   );

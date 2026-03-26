@@ -1,7 +1,10 @@
 "use client";
+
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { ArrowRight, Tag } from "lucide-react";
+import MagneticButton from "@/components/ui/MagneticButton";
+import RevealText from "@/components/ui/RevealText";
 
 export default function OfferBanner() {
   return (
@@ -29,21 +32,24 @@ export default function OfferBanner() {
             <Tag size={16} className="text-[#E63946]" />
             <span className="text-[#E63946] text-xs font-bold tracking-[0.3em]">LIMITED TIME</span>
           </div>
-          <h2 className="text-3xl md:text-5xl font-black text-white leading-tight tracking-tight">
-            UP TO <span className="text-[#E63946]">50% OFF</span>
-          </h2>
+          <RevealText
+            text="UP TO 50% OFF"
+            className="text-3xl md:text-5xl font-black text-white leading-tight tracking-tight"
+          />
           <p className="text-gray-400 mt-2 text-sm">
             Use code <span className="text-white font-bold bg-white/10 px-2 py-0.5 rounded-md">DRIP50</span> at checkout
           </p>
         </div>
 
-        <Link
-          href="/shop?filter=sale"
-          className="relative z-10 group flex items-center gap-3 px-8 py-4 bg-[#E63946] text-white font-black text-sm tracking-widest rounded-xl hover:bg-red-700 transition-colors flex-shrink-0"
-        >
-          SHOP SALE
-          <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-        </Link>
+        <MagneticButton className="relative z-10">
+          <Link
+            href="/shop?filter=sale"
+            className="group flex items-center gap-3 px-8 py-4 bg-[#E63946] text-white font-black text-sm tracking-widest rounded-xl hover:bg-red-700 transition-colors flex-shrink-0"
+          >
+            SHOP SALE
+            <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+          </Link>
+        </MagneticButton>
       </motion.div>
     </section>
   );

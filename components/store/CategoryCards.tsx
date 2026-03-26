@@ -1,7 +1,9 @@
 "use client";
+
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
+import RevealText from "@/components/ui/RevealText";
 
 const categories = [
   {
@@ -48,7 +50,7 @@ export default function CategoryCards() {
       <div className="flex items-end justify-between mb-10">
         <div>
           <p className="text-[#E63946] text-xs font-bold tracking-[0.3em] mb-2">BROWSE BY</p>
-          <h2 className="text-4xl md:text-5xl font-black tracking-tight leading-none">CATEGORIES</h2>
+          <RevealText text="CATEGORIES" className="text-4xl md:text-5xl font-black tracking-tight leading-none" />
         </div>
         <Link
           href="/shop"
@@ -70,35 +72,26 @@ export default function CategoryCards() {
           >
             <Link
               href={cat.href}
+              data-cursor="SHOP"
               className="group relative flex flex-col justify-between h-52 md:h-72 p-5 md:p-7 rounded-2xl overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:shadow-2xl"
               style={{ background: cat.bg, color: cat.text }}
             >
               <div className="flex items-start justify-between">
                 <span
                   className="text-xs font-bold tracking-[0.2em] px-2.5 py-1 rounded-full"
-                  style={{
-                    background: `${cat.text}15`,
-                    color: cat.text,
-                  }}
+                  style={{ background: `${cat.text}15`, color: cat.text }}
                 >
                   {cat.count}
                 </span>
                 <motion.div whileHover={{ rotate: 45 }} transition={{ duration: 0.2 }}>
-                  <ArrowUpRight
-                    size={20}
-                    style={{ color: cat.text, opacity: 0.5 }}
-                    className="group-hover:opacity-100 transition-opacity"
-                  />
+                  <ArrowUpRight size={20} style={{ color: cat.text, opacity: 0.5 }} className="group-hover:opacity-100 transition-opacity" />
                 </motion.div>
               </div>
 
               <div className="text-4xl md:text-5xl">{cat.emoji}</div>
 
               <div>
-                <h3
-                  className="text-2xl md:text-3xl font-black tracking-tight leading-none mb-1"
-                  style={{ color: cat.text }}
-                >
+                <h3 className="text-2xl md:text-3xl font-black tracking-tight leading-none mb-1" style={{ color: cat.text }}>
                   {cat.label}
                 </h3>
                 <p className="text-xs font-medium opacity-60" style={{ color: cat.text }}>
@@ -106,12 +99,7 @@ export default function CategoryCards() {
                 </p>
               </div>
 
-              <motion.div
-                className="absolute bottom-0 left-0 h-1 bg-[#E63946]"
-                initial={{ width: 0 }}
-                whileHover={{ width: "100%" }}
-                transition={{ duration: 0.3 }}
-              />
+              <motion.div className="absolute bottom-0 left-0 h-1 bg-[#E63946]" initial={{ width: 0 }} whileHover={{ width: "100%" }} transition={{ duration: 0.3 }} />
             </Link>
           </motion.div>
         ))}

@@ -1,8 +1,10 @@
 "use client";
+
 import { useRef, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import ProductCard from "./ProductCard";
+import RevealText from "@/components/ui/RevealText";
 
 interface Product {
   _id: string;
@@ -41,7 +43,7 @@ export default function FeaturedProducts() {
       <div className="flex items-end justify-between mb-10">
         <div>
           <p className="text-[#E63946] text-xs font-bold tracking-[0.3em] mb-2">HANDPICKED FOR YOU</p>
-          <h2 className="text-4xl md:text-5xl font-black tracking-tight leading-none">TRENDING NOW</h2>
+          <RevealText text="TRENDING NOW" className="text-4xl md:text-5xl font-black tracking-tight leading-none" delay={0.1} />
         </div>
         <div className="hidden md:flex gap-2">
           <button
@@ -59,7 +61,11 @@ export default function FeaturedProducts() {
         </div>
       </div>
 
-      <div ref={scrollRef} className="flex gap-4 overflow-x-auto scrollbar-hide pb-2" style={{ scrollSnapType: "x mandatory" }}>
+      <div
+        ref={scrollRef}
+        className="flex gap-4 overflow-x-auto scrollbar-hide pb-2 will-change-transform"
+        style={{ scrollSnapType: "x mandatory" }}
+      >
         {products.map((product) => (
           <div key={product._id} className="flex-shrink-0 w-[calc(50%-8px)] md:w-64" style={{ scrollSnapAlign: "start" }}>
             <ProductCard product={product} />
