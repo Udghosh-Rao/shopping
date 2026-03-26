@@ -16,10 +16,10 @@ const posts = [
 
 export default function Lookbook() {
   return (
-    <section className="py-20 px-4 md:px-8 max-w-7xl mx-auto">
-      <div className="text-center mb-10">
+    <section className="py-14 md:py-20 px-4 md:px-8 max-w-7xl mx-auto">
+      <div className="text-center mb-8 md:mb-10">
         <p className="text-[#E63946] text-xs font-bold tracking-[0.3em] mb-2">COMMUNITY VIBES</p>
-        <RevealText text="#DRIPSTORE 📸" className="text-4xl md:text-5xl font-black tracking-tight mb-3 justify-center" />
+        <RevealText text="#DRIPSTORE 📸" className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight mb-3 justify-center" />
         <p className="text-gray-400 text-sm">Tag us for a chance to be featured</p>
       </div>
 

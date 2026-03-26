@@ -46,11 +46,11 @@ const categories = [
 
 export default function CategoryCards() {
   return (
-    <section className="py-20 px-4 md:px-8 max-w-7xl mx-auto overflow-hidden">
-      <div className="flex items-end justify-between mb-10">
+    <section className="py-14 md:py-20 px-4 md:px-8 max-w-7xl mx-auto overflow-hidden">
+      <div className="flex items-end justify-between gap-4 mb-8 md:mb-10">
         <div>
           <p className="text-[#E63946] text-xs font-bold tracking-[0.3em] mb-2">BROWSE BY</p>
-          <RevealText text="CATEGORIES" className="text-4xl md:text-5xl font-black tracking-tight leading-none" />
+          <RevealText text="CATEGORIES" className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight leading-none" />
         </div>
         <Link
           href="/shop"
@@ -61,7 +61,7 @@ export default function CategoryCards() {
         </Link>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         {categories.map((cat, i) => (
           <motion.div
             key={cat.label}
@@ -91,7 +91,7 @@ export default function CategoryCards() {
               <div className="text-4xl md:text-5xl">{cat.emoji}</div>
 
               <div>
-                <h3 className="text-2xl md:text-3xl font-black tracking-tight leading-none mb-1 truncate" style={{ color: cat.text }}>
+                <h3 className="text-2xl md:text-3xl font-black tracking-tight leading-none mb-1 break-words" style={{ color: cat.text }}>
                   {cat.label}
                 </h3>
                 <p className="text-xs font-medium opacity-60" style={{ color: cat.text }}>

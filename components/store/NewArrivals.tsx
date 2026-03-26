@@ -31,12 +31,14 @@ export default function NewArrivals() {
   const filters = ["All", "Men", "Women", "Sneakers"];
 
   useEffect(() => {
-    setLoading(true);
+    void Promise.resolve().then(() => setLoading(true));
     const gender = activeFilter === "All" ? "" : activeFilter === "Sneakers" ? "" : activeFilter;
     const category = activeFilter === "Sneakers" ? "Shoes" : "";
     const params = new URLSearchParams();
     if (gender) params.set("gender", gender);
     if (category) params.set("category", category);
+    // Ensure we actually request "new arrivals" from the API.
+    params.set("newArrivals", "true");
     params.set("limit", "8");
 
     fetch(`/api/products?${params}`)
@@ -54,11 +56,11 @@ export default function NewArrivals() {
   }, [activeFilter]);
 
   return (
-    <section className="py-20 px-4 md:px-8 max-w-7xl mx-auto">
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
+    <section className="py-14 md:py-20 px-4 md:px-8 max-w-7xl mx-auto">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 md:mb-10">
         <div>
           <p className="text-[#E63946] text-xs font-bold tracking-[0.3em] mb-2">JUST DROPPED</p>
-          <RevealText text="NEW ARRIVALS" className="text-4xl md:text-5xl font-black tracking-tight leading-none" />
+          <RevealText text="NEW ARRIVALS" className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight leading-none" />
         </div>
 
         <div className="flex gap-2 flex-wrap">

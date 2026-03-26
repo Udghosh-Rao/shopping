@@ -31,9 +31,9 @@ const perks = [
 
 export default function WhyChooseUs() {
   return (
-    <section className="py-20 bg-[#F8F5F0]">
+    <section className="py-14 md:py-20 bg-[#F8F5F0]">
       <div className="max-w-7xl mx-auto px-4 md:px-8">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
           {perks.map((perk, i) => (
             <motion.div
               key={perk.title}

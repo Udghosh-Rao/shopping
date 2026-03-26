@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef, useEffect, useState } from "react";
-import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import ProductCard from "./ProductCard";
 import RevealText from "@/components/ui/RevealText";
@@ -57,11 +56,11 @@ export default function FeaturedProducts() {
   }
 
   return (
-    <section className="py-20 px-4 md:px-8 max-w-7xl mx-auto">
-      <div className="flex items-end justify-between mb-10">
+    <section className="py-14 md:py-20 px-4 md:px-8 max-w-7xl mx-auto">
+      <div className="flex items-end justify-between gap-4 mb-8 md:mb-10">
         <div>
           <p className="text-[#E63946] text-xs font-bold tracking-[0.3em] mb-2">HANDPICKED FOR YOU</p>
-          <RevealText text="TRENDING NOW" className="text-4xl md:text-5xl font-black tracking-tight leading-none" delay={0.1} />
+          <RevealText text="TRENDING NOW" className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight leading-none" delay={0.1} />
         </div>
         <div className="hidden md:flex gap-2">
           <button

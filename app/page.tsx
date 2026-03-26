@@ -1,6 +1,5 @@
 import HeroBanner from "@/components/store/HeroBanner";
 import MarqueeBanner from "@/components/store/MarqueeBanner";
-import CategoryCards from "@/components/store/CategoryCards";
 import NewArrivals from "@/components/store/NewArrivals";
 import FeaturedProducts from "@/components/store/FeaturedProducts";
 import WhyChooseUs from "@/components/store/WhyChooseUs";
@@ -8,23 +7,23 @@ import ReviewsSection from "@/components/store/ReviewsSection";
 import OfferBanner from "@/components/store/OfferBanner";
 import AnimatedCounter from "@/components/ui/AnimatedCounter";
 import Lookbook from "@/components/store/Lookbook";
+import CategoryCards from "@/components/store/CategoryCards";
 
 export default function HomePage() {
   return (
-    <div className="overflow-x-hidden">
+    <div className="overflow-x-hidden pb-20 md:pb-0">
       <HeroBanner />
       <MarqueeBanner />
-      <CategoryCards />
 
-      <div className="bg-[#0A0A0A] py-12 text-white">
-        <div className="grid grid-cols-3 max-w-3xl mx-auto text-center gap-8 px-4">
+      <div className="bg-[#0A0A0A] py-14 md:py-16 text-white">
+        <div className="grid grid-cols-1 sm:grid-cols-3 max-w-3xl mx-auto text-center gap-6 md:gap-8 px-4">
           {[
             { end: 50000, suffix: "+", label: "HAPPY CUSTOMERS" },
             { end: 500, suffix: "+", label: "STYLES AVAILABLE" },
             { end: 99, suffix: "%", label: "SATISFACTION RATE" },
           ].map((stat) => (
             <div key={stat.label}>
-              <p className="text-4xl font-black text-[#E63946]">
+              <p className="text-3xl sm:text-4xl font-black text-[#E63946]">
                 <AnimatedCounter end={stat.end} suffix={stat.suffix} />
               </p>
               <p className="text-xs tracking-widest text-gray-400 mt-1">{stat.label}</p>
@@ -33,6 +32,7 @@ export default function HomePage() {
         </div>
       </div>
 
+      <CategoryCards />
       <NewArrivals />
       <OfferBanner />
       <FeaturedProducts />

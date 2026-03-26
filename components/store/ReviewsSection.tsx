@@ -45,12 +45,12 @@ const reviews = [
 
 export default function ReviewsSection() {
   return (
-    <section className="py-20">
+    <section className="py-14 md:py-20">
       <div className="max-w-7xl mx-auto px-4 md:px-8">
-        <div className="text-center mb-14">
+        <div className="text-center mb-10 md:mb-14">
           <p className="text-[#E63946] text-xs font-bold tracking-[0.3em] mb-3">REAL PEOPLE, REAL REVIEWS</p>
           <div className="flex justify-center">
-            <RevealText text="THEY LOVE IT" className="text-4xl md:text-5xl font-black tracking-tight mb-5" />
+            <RevealText text="THEY LOVE IT" className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight mb-5" />
           </div>
           <div className="flex items-center justify-center gap-2">
             <div className="flex">
@@ -63,7 +63,7 @@ export default function ReviewsSection() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
           {reviews.map((review, i) => (
             <motion.div
               key={review.name}
@@ -75,7 +75,7 @@ export default function ReviewsSection() {
             >
               <div>
                 <Quote size={24} className="text-[#E63946] mb-3 opacity-60" />
-                <p className="text-sm text-gray-600 leading-relaxed">"{review.text}"</p>
+                  <p className="text-sm text-gray-600 leading-relaxed">&quot;{review.text}&quot;</p>
               </div>
               <div>
                 <div className="flex mb-3">
