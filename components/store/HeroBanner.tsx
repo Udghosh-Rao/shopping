@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
+import MagneticButton from "@/components/ui/MagneticButton";
 
 const slides = [
   {
@@ -158,21 +159,25 @@ export default function HeroBanner() {
                 transition={{ delay: 0.55 }}
                 className="flex flex-wrap gap-3 mb-12"
               >
-                <Link
-                  href={slide.link}
-                  className="group flex items-center gap-2 px-8 py-4 font-bold text-sm tracking-[0.15em] transition-all duration-300 hover:gap-4"
-                  style={{ background: slide.accent, color: "#FFFFFF" }}
-                >
-                  {slide.cta}
-                  <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
-                </Link>
-                <Link
-                  href={slide.link2}
-                  className="px-8 py-4 font-bold text-sm tracking-[0.15em] border-2 transition-all duration-300 hover:opacity-70"
-                  style={{ borderColor: slide.textColor, color: slide.textColor }}
-                >
-                  {slide.cta2}
-                </Link>
+                <MagneticButton className="px-0 py-0">
+                  <Link
+                    href={slide.link}
+                    className="group flex items-center gap-2 px-8 py-4 font-bold text-sm tracking-[0.15em] transition-all duration-300 hover:gap-4"
+                    style={{ background: slide.accent, color: "#FFFFFF" }}
+                  >
+                    {slide.cta}
+                    <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
+                  </Link>
+                </MagneticButton>
+                <MagneticButton className="px-0 py-0">
+                  <Link
+                    href={slide.link2}
+                    className="px-8 py-4 font-bold text-sm tracking-[0.15em] border-2 transition-all duration-300 hover:opacity-70"
+                    style={{ borderColor: slide.textColor, color: slide.textColor }}
+                  >
+                    {slide.cta2}
+                  </Link>
+                </MagneticButton>
               </motion.div>
 
               <motion.div
@@ -245,15 +250,9 @@ export default function HeroBanner() {
                 style={{ width: i === current ? "48px" : "24px" }}
               >
                 {i === current && (
-                  <motion.div
-                    className="absolute inset-0"
-                    style={{ background: slide.textColor }}
-                    layoutId="progressBar"
-                  />
+                  <motion.div className="absolute inset-0" style={{ background: slide.textColor }} layoutId="progressBar" />
                 )}
-                {i !== current && (
-                  <div className="absolute inset-0" style={{ background: slide.textColor, opacity: 0.3 }} />
-                )}
+                {i !== current && <div className="absolute inset-0" style={{ background: slide.textColor, opacity: 0.3 }} />}
               </button>
             ))}
             <span className="text-xs font-bold opacity-40" style={{ color: slide.textColor }}>
