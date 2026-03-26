@@ -172,7 +172,7 @@ const clearFilters = () => {
 }
 
 const handleSearch = (query) => {
-  router.push(`/shop?search=${query}`)
+  router.push(`/products?search=${encodeURIComponent(query)}`)
 }
 
 const goToPage = (page) => {

@@ -89,13 +89,14 @@
 
 <script setup>
 import { ref } from 'vue'
-import { RouterLink, useRouter } from 'vue-router'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useRipple } from '../composables/useRipple'
 import { useAuthStore } from '../stores/authStore'
 import { useToast } from '../composables/useToast'
 import api from '../services/api'
 
 const router = useRouter()
+const route = useRoute()
 const authStore = useAuthStore()
 const { createRipple } = useRipple()
 const { showToast } = useToast()
@@ -122,7 +123,7 @@ const handleLogin = async (e) => {
     showToast(`Welcome back, ${username}!`, 'success')
     
     setTimeout(() => {
-      router.push('/')
+      router.push(route.query.redirect || '/')
     }, 1000)
   } catch (error) {
     status.value = 'idle'

@@ -163,34 +163,49 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted, nextTick } from 'vue'
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRoute } from 'vue-router'
 import { addToCart, toggleCart } from '../composables/useCart'
 import { useCountUp } from '../composables/useCountUp'
 import { useRipple } from '../composables/useRipple'
+import { useToast } from '../composables/useToast'
+import api from '../services/api'
 
-// MOCK DATA
-const product = {
-  id: 1,
-  name: 'NEON DEMON HOODIE',
-  price: 85,
-  badge: '🔥 HOT DROP',
-  description: 'Heavyweight 500gsm cotton fleece. Boxy fit with dropped shoulders. High-density puff print graphic on the back with neon glow effect ink. Limited run of 500 pieces.',
-  images: [
-    'https://images.unsplash.com/photo-1556821840-3a63f95609a7?q=80&w=800&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1529374255404-311a2a4f1fd9?q=80&w=800&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1578587018452-892bace01140?q=80&w=800&auto=format&fit=crop'
-  ]
-}
+const route = useRoute()
+const { showToast } = useToast()
 
-const activeImage = ref(product.images[0])
-const selectedSize = ref('L')
+const product = ref({
+  id: null,
+  name: '',
+  price: 0,
+  badge: '',
+  description: '',
+  images: [],
+  sizes: []
+})
+
+const activeImage = ref('')
+const selectedSize = ref('M')
 const quantity = ref(1)
 
 // Price Counter
 const { count: animatedPrice, startCount: sp } = useCountUp()
-onMounted(() => {
-  nextTick(() => sp(product.price, 600)) // fast count
-})
+
+const loadProduct = async () => {
+  try {
+    const { data } = await api.get(`/products/${route.params.id}`)
+    product.value = {
+      ...data,
+      images: [data.image_url, data.image_url_hover || data.image_url].filter(Boolean)
+    }
+    activeImage.value = product.value.images[0] || ''
+    selectedSize.value = (product.value.sizes && product.value.sizes[0]) || 'M'
+    nextTick(() => sp(product.value.price || 0, 600))
+  } catch (_error) {
+    showToast('Unable to load product details', 'error')
+  }
+}
+
+onMounted(loadProduct)
 
 // Lightbox
 const lightboxOpen = ref(false)
@@ -240,7 +255,7 @@ const handleAddToCart = (e) => {
   
   setTimeout(() => {
     cartStatus.value = 'success'
-    addToCart({ ...product, size: selectedSize.value, quantity: quantity.value })
+    addToCart({ ...product.value, size: selectedSize.value, quantity: quantity.value })
     setTimeout(() => {
       cartStatus.value = 'idle'
     }, 2000)
