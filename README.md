@@ -228,3 +228,41 @@ MIT License - feel free to use this for your projects!
 ---
 
 **Built with ❤️ using Next.js and Modern Web Technologies**
+
+## Full-Stack MVP (Flask + Vue 3 + Tailwind)
+
+A standalone MVP was added with authentication + roles in:
+
+- `mvp-backend` (Flask API)
+- `mvp-frontend` (Vue 3 + Tailwind app)
+
+### Implemented features
+
+1. User registration with roles (`user` / `organizer`)
+2. JWT login with role encoded in token payload
+3. View and update user profile
+4. RBAC enforced on protected endpoints
+
+### Run backend
+
+```bash
+cd mvp-backend
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env
+python app.py
+```
+
+Backend runs on `http://127.0.0.1:5000`.
+
+### Run frontend
+
+```bash
+cd mvp-frontend
+cp .env.example .env
+npm install
+npm run dev
+```
+
+Frontend runs on `http://127.0.0.1:5173`.
