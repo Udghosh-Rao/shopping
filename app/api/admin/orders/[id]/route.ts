@@ -3,9 +3,6 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import dbConnect from '@/lib/mongodb';
 import Order from '@/models/Order';
-import { isMongoConfigured } from '@/lib/mongodb';
-import { updateDemoOrder } from '@/lib/demoBackend';
-import type { DemoOrder } from '@/lib/demoBackend';
 
 export async function PUT(
   req: NextRequest,
@@ -18,12 +15,7 @@ export async function PUT(
 
   try {
     const { id } = await params;
-    const body = (await req.json()) as Partial<DemoOrder>;
-    if (!isMongoConfigured()) {
-      const order = updateDemoOrder(id, body);
-      if (!order) return NextResponse.json({ error: 'Not found' }, { status: 404 });
-      return NextResponse.json({ order });
-    }
+    const body = await req.json();
 
     await dbConnect();
     const order = await Order.findByIdAndUpdate(id, body, { new: true });
