@@ -1,27 +1,31 @@
-'use client';
+"use client";
+import { motion } from "framer-motion";
+
+const items = [
+  "FREE SHIPPING ABOVE ₹599",
+  "NEW DROP EVERY FRIDAY ✦",
+  "100% AUTHENTIC PRODUCTS",
+  "EASY 15-DAY RETURNS ✦",
+  "SHOP MEN & WOMEN",
+  "PAY VIA UPI, CARDS & MORE ✦",
+  "MADE IN INDIA 🇮🇳",
+];
 
 export default function MarqueeBanner() {
-  const items = [
-    '🔥 FREE SHIPPING ON ORDERS ABOVE ₹999',
-    '⚡ NEW ARRIVALS EVERY WEEK',
-    '🎁 USE CODE WELCOME30 FOR 30% OFF',
-    '✨ PREMIUM QUALITY GUARANTEED',
-    '🚀 EASY RETURNS & EXCHANGES',
-    '💳 PAY VIA UPI, CARDS & WALLETS',
-  ];
-
+  const repeated = [...items, ...items, ...items];
   return (
-    <div className="bg-[#0a0a0a] text-white overflow-hidden py-2.5 relative">
-      <div className="animate-marquee flex whitespace-nowrap">
-        {[...items, ...items].map((item, i) => (
-          <span
-            key={i}
-            className="mx-8 text-[11px] sm:text-xs font-medium tracking-wider uppercase text-white/70"
-          >
+    <div className="bg-[#E63946] text-white py-3 overflow-hidden">
+      <motion.div
+        animate={{ x: ["0%", "-33.33%"] }}
+        transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+        className="flex whitespace-nowrap will-change-transform"
+      >
+        {repeated.map((item, i) => (
+          <span key={i} className="text-[11px] font-bold tracking-[0.25em] mx-10 flex-shrink-0">
             {item}
           </span>
         ))}
-      </div>
+      </motion.div>
     </div>
   );
 }

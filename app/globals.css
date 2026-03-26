@@ -1,14 +1,43 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
 @import "tailwindcss";
 
 :root {
   --accent: #E63946;
+  --accent-hover: #c1121f;
   --dark: #0A0A0A;
   --cream: #F8F5F0;
+  --muted: #6B7280;
+  --border: #E5E7EB;
+  --card: #FFFFFF;
+  --background: #FFFFFF;
+  --foreground: #0A0A0A;
+  --input-bg: #F9FAFB;
+  --input-border: #E5E7EB;
+  --skeleton: #F3F4F6;
+  --overlay: rgba(0,0,0,0.5);
 }
+
+[data-theme="dark"] {
+  --background: #0A0A0A;
+  --foreground: #FAFAFA;
+  --card: #141414;
+  --border: #2A2A2A;
+  --input-bg: #1A1A1A;
+  --input-border: #333333;
+  --muted: #9CA3AF;
+  --skeleton: #1F1F1F;
+  --cream: #111111;
+  --overlay: rgba(0,0,0,0.7);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
   font-family: 'Inter', sans-serif;
-  background: #ffffff;
-  color: #0A0A0A;
+  background: var(--background);
+  color: var(--foreground);
+  -webkit-font-smoothing: antialiased;
 }
+
+html { scroll-behavior: smooth; }

@@ -1,10 +1,9 @@
 "use client";
-
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
-import { Heart, ShoppingBag } from "lucide-react";
+import { Heart, ShoppingBag, Eye } from "lucide-react";
 import { useCart } from "@/lib/cartStore";
 import toast from "react-hot-toast";
 
@@ -19,99 +18,111 @@ interface Product {
   gender?: string;
   isNewArrival?: boolean;
   isSoldOut?: boolean;
-  stock?: number;
   sizes?: { size: string; stock: number }[];
 }
 
 export default function ProductCard({ product }: { product: Product; index?: number }) {
   const [hovered, setHovered] = useState(false);
   const [wishlisted, setWishlisted] = useState(false);
+  const [selectedSize, setSelectedSize] = useState<string | null>(null);
+  const [showSizes, setShowSizes] = useState(false);
   const { addItem } = useCart();
 
   const discount = product.discountPrice
     ? Math.round(((product.price - product.discountPrice) / product.price) * 100)
     : null;
 
-  const soldOut = product.isSoldOut || (typeof product.stock === "number" ? product.stock === 0 : false);
+  const availableSizes = product.sizes?.filter((s) => s.stock > 0) || [];
 
   const handleQuickAdd = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-
-    if (soldOut) {
-      toast.error("This product is sold out");
-      return;
+    if (product.isSoldOut) return;
+    if (availableSizes.length <= 1) {
+      addItem({
+        productId: product._id,
+        name: product.name,
+        slug: product.slug,
+        price: product.price,
+        discountPrice: product.discountPrice,
+        image: product.images[0],
+        size: availableSizes[0]?.size || "M",
+        quantity: 1,
+      });
+      toast.success("Added to bag! ��️", { duration: 2000 });
+    } else {
+      setShowSizes((prev) => !prev);
     }
+  };
 
-    const size = product.sizes?.find((s) => s.stock > 0)?.size || "M";
-
+  const handleSizeSelect = (e: React.MouseEvent, size: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setSelectedSize(size);
     addItem({
       productId: product._id,
       name: product.name,
       slug: product.slug,
-      image: product.images[0] || "/next.svg",
-      size,
-      quantity: 1,
       price: product.price,
       discountPrice: product.discountPrice,
+      image: product.images[0],
+      size,
+      quantity: 1,
     });
-
-    toast.success("Added to cart!");
+    toast.success(`Added (${size}) to bag! 🛍️`);
+    setShowSizes(false);
   };
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.4 }}
       className="group relative"
       onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+      onMouseLeave={() => {
+        setHovered(false);
+        setShowSizes(false);
+      }}
     >
       <Link href={`/product/${product.slug}`}>
-        <div className="relative aspect-[3/4] bg-[#F8F5F0] overflow-hidden rounded-lg">
-          <motion.div
-            animate={{ opacity: hovered && product.images[1] ? 0 : 1 }}
-            transition={{ duration: 0.3 }}
-            className="absolute inset-0"
-          >
+        <div className="relative aspect-[3/4] bg-[#F8F5F0] overflow-hidden rounded-2xl">
+          {product.images[0] && (
             <Image
-              src={product.images[0] || "/next.svg"}
+              src={product.images[0]}
               alt={product.name}
               fill
-              className="object-cover"
+              className={`object-cover transition-all duration-500 ${
+                hovered && product.images[1] ? "opacity-0 scale-105" : "opacity-100 scale-100"
+              }`}
+              sizes="(max-width: 768px) 50vw, 25vw"
             />
-          </motion.div>
-
-          {product.images[1] && (
-            <motion.div
-              animate={{ opacity: hovered ? 1 : 0 }}
-              transition={{ duration: 0.3 }}
-              className="absolute inset-0"
-            >
-              <Image
-                src={product.images[1]}
-                alt={product.name}
-                fill
-                className="object-cover"
-              />
-            </motion.div>
           )}
 
-          <div className="absolute top-3 left-3 flex flex-col gap-1">
+          {product.images[1] && (
+            <Image
+              src={product.images[1]}
+              alt={product.name}
+              fill
+              className={`object-cover absolute inset-0 transition-all duration-500 ${
+                hovered ? "opacity-100 scale-100" : "opacity-0 scale-105"
+              }`}
+              sizes="(max-width: 768px) 50vw, 25vw"
+            />
+          )}
+
+          {!product.images[0] && (
+            <div className="absolute inset-0 flex items-center justify-center text-4xl">👕</div>
+          )}
+
+          <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-10">
             {product.isNewArrival && (
-              <span className="bg-[#0A0A0A] text-white text-xs px-2 py-1 font-bold tracking-wider">
+              <span className="bg-[#0A0A0A] text-white text-[10px] px-2.5 py-1 font-black tracking-[0.2em] rounded-full">
                 NEW
               </span>
             )}
-            {discount && (
-              <span className="bg-[#E63946] text-white text-xs px-2 py-1 font-bold">
-                {discount}% OFF
-              </span>
+            {discount && !product.isSoldOut && (
+              <span className="bg-[#E63946] text-white text-[10px] px-2.5 py-1 font-black rounded-full">-{discount}%</span>
             )}
-            {soldOut && (
-              <span className="bg-gray-400 text-white text-xs px-2 py-1 font-bold">
+            {product.isSoldOut && (
+              <span className="bg-gray-500 text-white text-[10px] px-2.5 py-1 font-black tracking-[0.15em] rounded-full">
                 SOLD OUT
               </span>
             )}
@@ -120,47 +131,95 @@ export default function ProductCard({ product }: { product: Product; index?: num
           <button
             onClick={(e) => {
               e.preventDefault();
+              e.stopPropagation();
               setWishlisted(!wishlisted);
+              toast.success(wishlisted ? "Removed from wishlist" : "Added to wishlist ❤️");
             }}
-            className="absolute top-3 right-3"
-            aria-label="Toggle wishlist"
+            className="absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-white shadow-md flex items-center justify-center transition-transform hover:scale-110"
           >
-            <motion.div whileTap={{ scale: 0.8 }}>
-              <Heart
-                size={20}
-                className={wishlisted ? "fill-[#E63946] text-[#E63946]" : "text-gray-400"}
-              />
-            </motion.div>
+            <Heart
+              size={14}
+              className={`transition-colors ${wishlisted ? "fill-[#E63946] text-[#E63946]" : "text-gray-400"}`}
+            />
           </button>
 
+          <AnimatePresence>
+            {hovered && !showSizes && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute inset-0 flex flex-col items-end justify-end p-3 gap-2 z-10"
+              >
+                <Link
+                  href={`/product/${product.slug}`}
+                  onClick={(e) => e.stopPropagation()}
+                  className="w-9 h-9 rounded-full bg-white shadow-lg flex items-center justify-center hover:bg-[#0A0A0A] hover:text-white transition-colors"
+                >
+                  <Eye size={15} />
+                </Link>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <AnimatePresence>
+            {showSizes && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+                className="absolute bottom-14 left-3 right-3 bg-white rounded-xl shadow-xl p-3 z-20"
+                onClick={(e) => e.preventDefault()}
+              >
+                <p className="text-[10px] font-bold tracking-widest text-gray-400 mb-2">SELECT SIZE</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {availableSizes.map(({ size }) => (
+                    <button
+                      key={size}
+                      onClick={(e) => handleSizeSelect(e, size)}
+                      className={`px-3 py-1.5 text-xs font-bold border-2 rounded-lg transition-all ${
+                        selectedSize === size
+                          ? "bg-[#0A0A0A] text-white border-[#0A0A0A]"
+                          : "border-gray-200 hover:border-[#0A0A0A]"
+                      }`}
+                    >
+                      {size}
+                    </button>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           <motion.button
-            type="button"
             onClick={handleQuickAdd}
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: hovered ? 0 : 20, opacity: hovered ? 1 : 0 }}
+            initial={{ y: 50, opacity: 0 }}
+            animate={hovered ? { y: 0, opacity: 1 } : { y: 50, opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="absolute bottom-0 left-0 right-0 bg-[#0A0A0A] text-white py-3 flex items-center justify-center gap-2 text-sm font-bold tracking-wider"
+            className="absolute bottom-0 left-0 right-0 py-3 flex items-center justify-center gap-2 text-xs font-black tracking-[0.15em] z-10 rounded-b-2xl transition-colors"
+            style={{
+              background: product.isSoldOut ? "#9CA3AF" : "#0A0A0A",
+              color: "#FFFFFF",
+            }}
           >
-            <ShoppingBag size={16} />
-            QUICK ADD
+            <ShoppingBag size={13} />
+            {product.isSoldOut ? "SOLD OUT" : availableSizes.length === 1 ? "QUICK ADD" : "SELECT SIZE"}
           </motion.button>
         </div>
 
-        <div className="mt-3">
-          <p className="text-xs text-gray-400 uppercase tracking-widest mb-1">
-            {product.category || product.gender || "Fashion"}
+        <div className="mt-3 px-0.5">
+          <p className="text-[10px] font-bold tracking-[0.2em] text-gray-400 mb-1 uppercase">
+            {product.category || "Fashion"} · {product.gender || "Unisex"}
           </p>
-          <h3 className="font-semibold text-sm text-[#0A0A0A] leading-tight mb-2">
-            {product.name}
-          </h3>
+          <h3 className="font-semibold text-sm text-[#0A0A0A] leading-snug mb-1.5 line-clamp-2">{product.name}</h3>
           <div className="flex items-center gap-2">
             {product.discountPrice ? (
               <>
-                <span className="font-bold text-[#E63946]">₹{product.discountPrice}</span>
-                <span className="text-gray-400 line-through text-sm">₹{product.price}</span>
+                <span className="font-black text-[#E63946] text-base">₹{product.discountPrice}</span>
+                <span className="text-gray-400 line-through text-xs">₹{product.price}</span>
               </>
             ) : (
-              <span className="font-bold text-[#0A0A0A]">₹{product.price}</span>
+              <span className="font-black text-[#0A0A0A] text-base">₹{product.price}</span>
             )}
           </div>
         </div>

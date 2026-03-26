@@ -1,62 +1,117 @@
 "use client";
-
 import { motion } from "framer-motion";
 import Link from "next/link";
-import Image from "next/image";
+import { ArrowUpRight } from "lucide-react";
 
 const categories = [
   {
-    label: "SHOP MEN",
+    label: "MEN",
+    sub: "T-Shirts, Hoodies, Joggers",
     href: "/shop?gender=Men",
-    image: "/next.svg",
-    tag: "500+ Styles",
+    count: "500+ Styles",
+    emoji: "👔",
+    bg: "#0A0A0A",
+    text: "#FFFFFF",
   },
   {
-    label: "SHOP WOMEN",
+    label: "WOMEN",
+    sub: "Tops, Co-ords, Dresses",
     href: "/shop?gender=Women",
-    image: "/vercel.svg",
-    tag: "400+ Styles",
+    count: "400+ Styles",
+    emoji: "👗",
+    bg: "#F8F5F0",
+    text: "#0A0A0A",
   },
   {
     label: "SNEAKERS",
+    sub: "Fresh drops weekly",
     href: "/shop?category=Shoes",
-    image: "/globe.svg",
-    tag: "Latest Drops",
+    count: "Latest Drops",
+    emoji: "👟",
+    bg: "#E63946",
+    text: "#FFFFFF",
+  },
+  {
+    label: "SALE",
+    sub: "Up to 50% off",
+    href: "/shop?filter=sale",
+    count: "Limited Time",
+    emoji: "🔥",
+    bg: "#FFF7ED",
+    text: "#0A0A0A",
   },
 ];
 
 export default function CategoryCards() {
   return (
     <section className="py-20 px-4 md:px-8 max-w-7xl mx-auto">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="flex items-end justify-between mb-10">
+        <div>
+          <p className="text-[#E63946] text-xs font-bold tracking-[0.3em] mb-2">BROWSE BY</p>
+          <h2 className="text-4xl md:text-5xl font-black tracking-tight leading-none">CATEGORIES</h2>
+        </div>
+        <Link
+          href="/shop"
+          className="hidden md:flex items-center gap-2 text-sm font-bold tracking-widest hover:text-[#E63946] transition-colors group"
+        >
+          ALL PRODUCTS
+          <ArrowUpRight size={16} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+        </Link>
+      </div>
+
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         {categories.map((cat, i) => (
           <motion.div
             key={cat.label}
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: i * 0.15 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ delay: i * 0.1, duration: 0.5 }}
           >
-            <Link href={cat.href} className="group block relative h-[500px] overflow-hidden rounded-lg bg-[#F8F5F0]">
-              <Image
-                src={cat.image}
-                alt={cat.label}
-                fill
-                className="object-cover transition-transform duration-700 group-hover:scale-110"
-              />
-
-              <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-all duration-300" />
-
-              <div className="absolute bottom-0 left-0 right-0 p-6">
-                <p className="text-white/70 text-xs tracking-widest mb-1">{cat.tag}</p>
-                <h3 className="text-white text-2xl font-black tracking-wider mb-3">{cat.label}</h3>
-                <motion.div
-                  initial={{ width: 0 }}
-                  whileInView={{ width: "40px" }}
-                  viewport={{ once: true }}
-                  className="h-0.5 bg-[#E63946]"
-                />
+            <Link
+              href={cat.href}
+              className="group relative flex flex-col justify-between h-52 md:h-72 p-5 md:p-7 rounded-2xl overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:shadow-2xl"
+              style={{ background: cat.bg, color: cat.text }}
+            >
+              <div className="flex items-start justify-between">
+                <span
+                  className="text-xs font-bold tracking-[0.2em] px-2.5 py-1 rounded-full"
+                  style={{
+                    background: `${cat.text}15`,
+                    color: cat.text,
+                  }}
+                >
+                  {cat.count}
+                </span>
+                <motion.div whileHover={{ rotate: 45 }} transition={{ duration: 0.2 }}>
+                  <ArrowUpRight
+                    size={20}
+                    style={{ color: cat.text, opacity: 0.5 }}
+                    className="group-hover:opacity-100 transition-opacity"
+                  />
+                </motion.div>
               </div>
+
+              <div className="text-4xl md:text-5xl">{cat.emoji}</div>
+
+              <div>
+                <h3
+                  className="text-2xl md:text-3xl font-black tracking-tight leading-none mb-1"
+                  style={{ color: cat.text }}
+                >
+                  {cat.label}
+                </h3>
+                <p className="text-xs font-medium opacity-60" style={{ color: cat.text }}>
+                  {cat.sub}
+                </p>
+              </div>
+
+              <motion.div
+                className="absolute bottom-0 left-0 h-1 bg-[#E63946]"
+                initial={{ width: 0 }}
+                whileHover={{ width: "100%" }}
+                transition={{ duration: 0.3 }}
+              />
             </Link>
           </motion.div>
         ))}

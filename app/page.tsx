@@ -1,30 +1,23 @@
 import HeroBanner from "@/components/store/HeroBanner";
+import MarqueeBanner from "@/components/store/MarqueeBanner";
 import CategoryCards from "@/components/store/CategoryCards";
 import NewArrivals from "@/components/store/NewArrivals";
-import dbConnect from "@/lib/mongodb";
-import Product from "@/models/Product";
+import FeaturedProducts from "@/components/store/FeaturedProducts";
+import WhyChooseUs from "@/components/store/WhyChooseUs";
+import ReviewsSection from "@/components/store/ReviewsSection";
+import OfferBanner from "@/components/store/OfferBanner";
 
-async function getNewArrivals() {
-  try {
-    await dbConnect();
-    const products = await Product.find({ isNewArrival: true })
-      .sort({ createdAt: -1 })
-      .limit(8)
-      .lean();
-    return JSON.parse(JSON.stringify(products));
-  } catch {
-    return [];
-  }
-}
-
-export default async function HomePage() {
-  const newArrivals = await getNewArrivals();
-
+export default function HomePage() {
   return (
-    <>
+    <main className="overflow-x-hidden">
       <HeroBanner />
+      <MarqueeBanner />
       <CategoryCards />
-      <NewArrivals products={newArrivals} />
-    </>
+      <NewArrivals />
+      <OfferBanner />
+      <FeaturedProducts />
+      <WhyChooseUs />
+      <ReviewsSection />
+    </main>
   );
 }
