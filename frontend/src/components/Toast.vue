@@ -1,97 +1,81 @@
 <template>
-  <div class="fixed z-[140] right-4 bottom-4 sm:right-6 sm:bottom-6 left-4 sm:left-auto pointer-events-none">
-    <div class="space-y-2 max-w-sm ml-auto">
-      <TransitionGroup name="toast">
-        <div
-          v-for="toast in visibleToasts"
-          :key="toast.id"
-          class="pointer-events-auto bg-white rounded-xl shadow-xl overflow-hidden border border-gray-100"
-          @mouseenter="pauseToast(toast.id)"
-          @mouseleave="resumeToast(toast.id)"
-        >
-          <div class="flex items-start gap-3 p-3 relative">
-            <span class="text-lg">{{ iconByType(toast.type) }}</span>
-            <p class="text-sm font-semibold text-gray-800 flex-1">{{ toast.message }}</p>
-            <button class="text-gray-400 hover:text-gray-600" @click="remove(toast.id)">✕</button>
-            <div class="w-1 absolute inset-y-0 left-0" :class="barClass(toast.type)"></div>
-          </div>
-          <div class="h-1 w-full bg-gray-100 relative">
-            <div class="h-full transition-all duration-100" :class="barClass(toast.type)" :style="{ width: `${progressMap[toast.id] ?? 100}%` }"></div>
-          </div>
+  <div class="fixed top-4 right-4 z-50 flex flex-col gap-3 pointer-events-none">
+    <TransitionGroup name="toast">
+      <div 
+        v-for="toast in toasts" 
+        :key="toast.id" 
+        class="toast-item glass-card dark px-5 py-4 w-80 pointer-events-auto relative overflow-hidden"
+        :class="getBorderClass(toast.type)"
+      >
+        <div class="flex items-center gap-3 relative z-10">
+          <span class="text-xl" v-if="toast.type === 'success'">✅</span>
+          <span class="text-xl" v-else-if="toast.type === 'error'">🚨</span>
+          <span class="text-xl" v-else>💡</span>
+          <p class="text-sm font-medium text-white">{{ toast.message }}</p>
         </div>
-      </TransitionGroup>
-    </div>
+        
+        <!-- Progress Bar -->
+        <div class="absolute bottom-0 left-0 h-1 w-full bg-white/10">
+          <div 
+            class="h-full toast-progress" 
+            :class="getProgressClass(toast.type)"
+            :style="{ animationDuration: toast.duration + 'ms' }"
+          ></div>
+        </div>
+      </div>
+    </TransitionGroup>
   </div>
 </template>
 
 <script setup>
-import { storeToRefs } from 'pinia'
-import { computed, onBeforeUnmount, onMounted, reactive } from 'vue'
-import { useToastStore } from '../stores/toastStore'
+import { useToast } from '../composables/useToast'
 
-const toastStore = useToastStore()
-const { toasts } = storeToRefs(toastStore)
+const { toasts } = useToast()
 
-const visibleToasts = computed(() => toasts.value.slice(-3))
-const progressMap = reactive({})
-const pausedMap = reactive({})
-
-let timer = null
-
-function iconByType(type) {
-  if (type === 'success') return '✅'
-  if (type === 'error') return '❌'
-  if (type === 'warning') return '⚠️'
-  return 'ℹ️'
+const getBorderClass = (type) => {
+  if (type === 'success') return 'toast-success'
+  if (type === 'error') return 'toast-error'
+  return 'toast-info'
 }
 
-function barClass(type) {
-  if (type === 'success') return 'bg-green-500'
+const getProgressClass = (type) => {
+  if (type === 'success') return 'bg-neon-green'
   if (type === 'error') return 'bg-red-500'
-  if (type === 'warning') return 'bg-yellow-500'
-  return 'bg-orange-500'
+  return 'bg-neon-orange'
 }
-
-function pauseToast(id) {
-  pausedMap[id] = true
-}
-
-function resumeToast(id) {
-  pausedMap[id] = false
-}
-
-function remove(id) {
-  toastStore.remove(id)
-  delete progressMap[id]
-  delete pausedMap[id]
-}
-
-onMounted(() => {
-  timer = setInterval(() => {
-    visibleToasts.value.forEach((t) => {
-      if (pausedMap[t.id]) return
-      const duration = t.duration || 3000
-      const step = 100 / (duration / 100)
-      if (progressMap[t.id] === undefined) progressMap[t.id] = 100
-      progressMap[t.id] = Math.max(0, progressMap[t.id] - step)
-      if (progressMap[t.id] <= 0) remove(t.id)
-    })
-  }, 100)
-})
-
-onBeforeUnmount(() => {
-  if (timer) clearInterval(timer)
-})
 </script>
 
 <style scoped>
-.toast-enter-active,
-.toast-leave-active { transition: all 0.25s ease; }
-.toast-enter-from { opacity: 0; transform: translateX(20px); }
-.toast-leave-to { opacity: 0; transform: translateX(20px); }
+.toast-success { box-shadow: -4px 0 var(--neon-green); }
+.toast-error   { box-shadow: -4px 0 #ef4444; }
+.toast-info    { box-shadow: -4px 0 var(--neon-orange); }
 
-@media (max-width: 640px) {
-  .toast-enter-from { transform: translateY(-20px); }
-  .toast-leave-to { transform: translateY(-20px); }
+.bg-neon-green  { background: var(--neon-green); }
+.bg-neon-orange { background: var(--neon-orange); }
+
+/* Shrink left to right */
+.toast-progress {
+  transform-origin: left;
+  animation: shrinkProgress linear forwards;
+}
+@keyframes shrinkProgress {
+  from { transform: scaleX(1); }
+  to   { transform: scaleX(0); }
+}
+
+/* Toast Transitions */
+.toast-enter-active {
+  transition: all 0.5s var(--ease-bounce);
+}
+.toast-leave-active {
+  transition: all 0.3s var(--ease-smooth);
+}
+.toast-enter-from {
+  opacity: 0;
+  transform: translateX(120%);
+}
+.toast-leave-to {
+  opacity: 0;
+  transform: translateX(100px);
 }
 </style>

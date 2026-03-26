@@ -1,313 +1,269 @@
 <template>
-  <div>
-    <Navbar />
+  <main class="bg-[var(--black)] min-h-screen text-white pt-24 pb-32 relative">
+    <div class="container mx-auto px-6 relative z-10">
+      
+      <!-- Breadcrumb -->
+      <nav class="text-xs font-bold tracking-widest uppercase text-gray-500 mb-8 flex gap-2">
+        <RouterLink to="/" class="hover:text-neon-orange transition-colors">HOME</RouterLink>
+        <span>/</span>
+        <RouterLink to="/shop" class="hover:text-neon-orange transition-colors">SHOP</RouterLink>
+        <span>/</span>
+        <span class="text-white">{{ product.name }}</span>
+      </nav>
 
-    <div class="container mx-auto px-4 py-8" v-if="product">
-      <div class="grid lg:grid-cols-11 gap-8">
-        <div class="lg:col-span-6 lg:sticky lg:top-24 self-start">
-          <div class="relative rounded-2xl overflow-hidden shadow-xl bg-gray-100">
-            <img :src="activeImage" :alt="product.name" class="w-full aspect-[4/5] object-cover hover:scale-110 transition-transform duration-500" />
-            <span v-if="product.badge" :class="['badge absolute top-4 left-4', badgeClass]">{{ product.badge }}</span>
-            <button class="absolute top-4 right-4 bg-white/90 rounded-full w-10 h-10" @click="shareProduct">↗</button>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
+        
+        <!-- Image Section -->
+        <div class="flex flex-col gap-6">
+          <!-- Main Image -->
+          <div 
+            class="relative w-full aspect-[4/5] bg-white/5 rounded-[2rem] overflow-hidden cursor-zoom-in group border border-white/10"
+            @click="lightboxOpen = true"
+          >
+            <img 
+              :src="activeImage" 
+              class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.08]" 
+            />
           </div>
-          <div class="grid grid-cols-4 gap-3 mt-3">
-            <button v-for="img in gallery" :key="img" class="rounded-xl overflow-hidden border-2" :class="activeImage === img ? 'border-orange-500' : 'border-transparent'" @click="activeImage = img">
-              <img :src="img" class="aspect-square object-cover w-full" alt="thumbnail" />
+
+          <!-- Thumbnails -->
+          <div class="flex gap-4 overflow-x-auto snap-x hide-scrollbar pb-2">
+            <button 
+              v-for="(img, idx) in product.images" 
+              :key="idx"
+              @click="activeImage = img"
+              class="w-24 h-24 flex-shrink-0 rounded-2xl overflow-hidden snap-start transition-all duration-300 relative border-2"
+              :class="activeImage === img ? 'border-neon-orange shadow-[0_0_15px_rgba(255,107,0,0.5)] scale-105' : 'border-transparent opacity-50 hover:opacity-100 bg-white/5'"
+            >
+              <img :src="img" class="w-full h-full object-cover" />
             </button>
           </div>
         </div>
 
-        <div class="lg:col-span-5">
-          <p class="text-xs text-gray-500">Home > {{ product.category }} > {{ product.name }}</p>
-          <span v-if="product.badge" class="inline-block mt-2 badge" :class="badgeClass">{{ product.badge }}</span>
-          <h1 class="text-5xl mt-2 leading-tight" style="font-family: var(--font-display)">{{ product.name }}</h1>
-
-          <button class="mt-3 text-sm flex items-center gap-2" @click="scrollToReviews">
-            <span class="text-orange-400">★★★★☆</span>
-            <span>{{ product.rating }} · {{ product.reviews }} reviews · VERIFIED PURCHASE</span>
-          </button>
-
-          <div class="mt-5">
-            <div class="flex items-end gap-3">
-              <span class="text-4xl font-black">₹{{ product.price }}</span>
-              <span v-if="product.original_price" class="line-through text-gray-400">₹{{ product.original_price }}</span>
-              <span v-if="discountPercent" class="px-2 py-1 rounded-full bg-green-100 text-green-600 text-xs font-bold">{{ discountPercent }}% OFF</span>
-            </div>
-            <p class="text-xs text-gray-500 mt-1">Inclusive of all taxes</p>
+        <!-- Product Info Section -->
+        <div class="flex flex-col">
+          <div class="mb-4">
+            <span class="badge-neon badge-hot px-3 py-1 mr-3">{{ product.badge }}</span>
+            <span class="text-xs font-bold tracking-widest text-neon-cyan uppercase">★ 4.9 (128 REVIEWS)</span>
           </div>
 
-          <hr class="my-6" />
+          <h1 class="text-5xl md:text-7xl font-display font-black leading-none mb-6 tracking-tight drop-shadow-[0_0_15px_rgba(255,255,255,0.1)] text-transparent bg-clip-text bg-[var(--grad-neon)]" style="background-image: var(--grad-neon)">
+            {{ product.name }}
+          </h1>
 
-          <div>
-            <p class="text-sm font-semibold">COLOR: {{ selectedColor }}</p>
-            <div class="mt-2 flex gap-2">
-              <button
-                v-for="color in colors"
-                :key="color"
-                class="w-8 h-8 rounded-full border-2"
-                :style="{ background: colorToHex(color) }"
-                :class="selectedColor === color ? 'border-orange-500 ring-2 ring-orange-300' : 'border-white shadow'"
-                @click="selectedColor = color"
-              ></button>
-            </div>
+          <!-- Animated Price -->
+          <div class="text-4xl md:text-5xl font-display font-bold text-neon-orange mb-8 flex items-end gap-3">
+            <span>$<span ref="priceEl">{{ animatedPrice }}</span></span>
+            <span class="text-xl text-gray-600 line-through mb-1">${{ (product.price * 1.4).toFixed(2) }}</span>
           </div>
 
-          <div class="mt-6">
-            <div class="flex justify-between text-sm font-semibold">
-              <p>SIZE: {{ selectedSize }}</p>
-              <button class="text-orange-500" @click="sizeGuideOpen = true">SIZE GUIDE →</button>
+          <p class="text-gray-400 text-lg leading-relaxed mb-10 font-medium max-w-lg">
+            {{ product.description }}
+          </p>
+
+          <hr class="border-white/10 mb-8" />
+
+          <!-- Sizes -->
+          <div class="mb-10">
+            <div class="flex justify-between items-center mb-4 max-w-md">
+              <span class="font-bold tracking-widest uppercase text-sm">SELECT SIZE</span>
+              <button class="text-xs font-bold text-gray-500 hover:text-white underline underline-offset-4 uppercase tracking-widest transition-colors">SIZE GUIDE</button>
             </div>
-            <div class="mt-2 flex flex-wrap gap-2">
-              <button
-                v-for="size in sizes"
-                :key="size"
-                class="px-4 py-2 border-2 rounded-xl font-bold text-sm"
-                :class="selectedSize === size ? 'bg-black text-white border-black' : 'border-gray-200 hover:border-orange-500'"
-                @click="selectedSize = size"
+            <div class="flex flex-wrap gap-4">
+              <button 
+                v-for="s in ['S', 'M', 'L', 'XL', 'XXL']" 
+                :key="s"
+                @click="selectedSize = s"
+                class="w-14 h-14 rounded-full font-bold flex items-center justify-center transition-all duration-300 border border-white/10"
+                :class="selectedSize === s ? 'bg-gradient-to-tr from-neon-orange to-neon-pink text-white shadow-[0_0_20px_rgba(255,107,0,0.5)] scale-110 !border-transparent' : 'glass hover:scale-110 hover:border-neon-orange hover:shadow-[0_0_15px_rgba(255,107,0,0.3)]'"
               >
-                {{ size }}
+                {{ s }}
               </button>
             </div>
           </div>
 
-          <div class="mt-6">
-            <p class="text-sm font-semibold">QUANTITY</p>
-            <div class="flex items-center gap-3 mt-2">
-              <button class="w-9 h-9 rounded-full border" @click="quantity = Math.max(1, quantity - 1)">−</button>
-              <span class="font-semibold">{{ quantity }}</span>
-              <button class="w-9 h-9 rounded-full border" @click="quantity = Math.min(10, quantity + 1)">+</button>
+          <!-- Quantity -->
+          <div class="mb-10">
+            <span class="font-bold tracking-widest uppercase text-sm block mb-4">QUANTITY</span>
+            <div class="flex items-center gap-4">
+              <button 
+                @click="quantity > 1 && quantity--"
+                class="w-12 h-12 rounded-full glass flex items-center justify-center text-xl transition-transform hover:scale-110 active:scale-90 border border-white/10 hover:border-white/30"
+              >-</button>
+              <span class="font-display text-3xl w-12 text-center">{{ quantity }}</span>
+              <button 
+                @click="quantity < 10 && quantity++"
+                class="w-12 h-12 rounded-full glass flex items-center justify-center text-xl transition-transform hover:scale-110 active:scale-95 border border-white/10 hover:border-white/30"
+              >+</button>
             </div>
           </div>
 
-          <div class="mt-6 grid grid-cols-12 gap-3">
-            <button
-              class="col-span-12 sm:col-span-5 btn-primary justify-center"
-              :class="addedToCart ? 'bg-green-500 hover:bg-green-600 animate-pulse-btn' : ''"
-              @click="addToCart"
+          <!-- Add to Cart (Magnetic) -->
+          <div class="max-w-md">
+            <button 
+              ref="cartBtn"
+              class="w-full btn-glow-orange py-5 text-xl tracking-widest uppercase font-black relative overflow-hidden flex items-center justify-center h-20"
+              @mousemove="handleMagneticMove"
+              @mouseleave="resetMagneticMove"
+              @click="handleAddToCart"
+              :style="{ transform: magneticTransform }"
             >
-              {{ addedToCart ? '✓ ADDED!' : '🛒 ADD TO CART' }}
+              <span class="relative z-10 block pointer-events-none transition-transform duration-300 w-full" :style="{ transform: magneticTextTransform }">
+                <span v-if="cartStatus === 'idle'">ADD TO CART — ${{ (product.price * quantity).toFixed(2) }}</span>
+                <span v-if="cartStatus === 'loading'" class="flex items-center justify-center h-full"><span class="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></span></span>
+                <span v-if="cartStatus === 'success'" class="anim-bounceIn flex items-center justify-center gap-2">✓ ADDED TO CART</span>
+              </span>
+              <!-- Ripple hook -->
+              <span class="absolute inset-0 z-0 pointer-events-none opacity-50 block" ref="btnContent"></span>
             </button>
-            <button class="col-span-12 sm:col-span-5 btn-dark justify-center" @click="buyNow">⚡ BUY NOW</button>
-            <button class="col-span-12 sm:col-span-2 border-2 rounded-full" @click="toggleWishlist">❤️</button>
           </div>
 
-          <div class="mt-6 border rounded-2xl p-4 bg-gray-50">
-            <p class="text-sm font-semibold mb-2">Delivery</p>
-            <div class="flex gap-2">
-              <input v-model="pincode" class="input-field !py-2" placeholder="Enter Pincode" />
-              <button class="btn-dark !px-4 !py-2" @click="checkPincode">CHECK</button>
-            </div>
-            <p v-if="deliveryMessage" class="text-sm mt-2 text-green-600">{{ deliveryMessage }}</p>
-          </div>
-
-          <div class="mt-6 grid grid-cols-2 gap-2 text-sm">
-            <div class="rounded-xl border p-3">✅ Official Licensed Product</div>
-            <div class="rounded-xl border p-3">🚚 Free Delivery above ₹499</div>
-            <div class="rounded-xl border p-3">🔄 Easy 15-Day Returns</div>
-            <div class="rounded-xl border p-3">💳 Cash on Delivery</div>
-          </div>
-
-          <div class="mt-6 space-y-3">
-            <details class="border rounded-xl p-3" open>
-              <summary class="font-semibold cursor-pointer">PRODUCT DESCRIPTION</summary>
-              <p class="text-sm text-gray-600 mt-2">{{ product.description }}</p>
-            </details>
-            <details class="border rounded-xl p-3">
-              <summary class="font-semibold cursor-pointer">FABRIC & CARE</summary>
-              <p class="text-sm text-gray-600 mt-2">100% Combed Cotton | Machine Wash Cold | Do not bleach</p>
-            </details>
-            <details class="border rounded-xl p-3">
-              <summary class="font-semibold cursor-pointer">SIZE & FIT</summary>
-              <table class="w-full mt-2 text-xs">
-                <thead><tr class="text-left"><th>Size</th><th>Chest</th><th>Length</th></tr></thead>
-                <tbody>
-                  <tr v-for="row in sizeChart" :key="row.size"><td>{{ row.size }}</td><td>{{ row.chest }}</td><td>{{ row.length }}</td></tr>
-                </tbody>
-              </table>
-            </details>
+          <!-- Perks -->
+          <div class="mt-8 grid grid-cols-2 gap-4 text-xs font-bold uppercase tracking-widest text-gray-400 max-w-md">
+            <div class="flex items-center gap-2"><span>📦</span> FREE SHIPPING OVER $100</div>
+            <div class="flex items-center gap-2"><span>🔄</span> 30-DAY RETURNS</div>
+            <div class="flex items-center gap-2"><span>🛡️</span> SECURE CHECKOUT</div>
+            <div class="flex items-center gap-2"><span>✨</span> PREMIUM QUALITY</div>
           </div>
         </div>
       </div>
-
-      <section class="mt-14">
-        <h2 class="text-5xl" style="font-family: var(--font-display)">YOU MAY ALSO LIKE</h2>
-        <div class="mt-5 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          <ProductCard v-for="item in related" :key="item.id" :product="item" />
-        </div>
-      </section>
-
-      <section id="reviews" class="mt-14 bg-gray-50 rounded-2xl p-6">
-        <h2 class="text-5xl" style="font-family: var(--font-display)">REVIEWS</h2>
-        <div class="mt-4 grid md:grid-cols-2 gap-4">
-          <div class="bg-white rounded-xl p-4" v-for="r in sampleReviews" :key="r.name">
-            <p class="text-orange-500">★★★★★</p>
-            <p class="text-sm mt-2">{{ r.text }}</p>
-            <p class="mt-2 text-sm font-semibold">{{ r.name }}</p>
-          </div>
-        </div>
-      </section>
     </div>
 
-    <div v-if="product" class="fixed bottom-0 left-0 right-0 md:hidden bg-white border-t shadow-[0_-6px_24px_rgba(0,0,0,0.08)] z-40 p-3 flex items-center gap-2">
-      <p class="font-black text-lg">₹{{ product.price }}</p>
-      <button class="btn-primary !py-2 !px-4 flex-1 justify-center" @click="addToCart">ADD TO CART</button>
-      <button class="btn-dark !py-2 !px-4 flex-1 justify-center" @click="buyNow">BUY NOW</button>
-    </div>
-
+    <!-- Lightbox Modal -->
     <Transition name="fade">
-      <div v-if="sizeGuideOpen" class="fixed inset-0 bg-black/50 z-50 grid place-items-center p-4" @click.self="sizeGuideOpen = false">
-        <div class="bg-white rounded-2xl p-5 max-w-md w-full">
-          <div class="flex justify-between items-center"><h3 class="font-bold">Size Guide</h3><button @click="sizeGuideOpen = false">✕</button></div>
-          <table class="w-full mt-3 text-sm">
-            <thead><tr><th class="text-left">Size</th><th class="text-left">Chest</th><th class="text-left">Length</th></tr></thead>
-            <tbody>
-              <tr v-for="row in sizeChart" :key="row.size"><td>{{ row.size }}</td><td>{{ row.chest }}</td><td>{{ row.length }}</td></tr>
-            </tbody>
-          </table>
-        </div>
+      <div 
+        v-if="lightboxOpen" 
+        class="fixed inset-0 z-50 bg-black/95 backdrop-blur-2xl flex items-center justify-center cursor-zoom-out"
+        @click="lightboxOpen = false"
+      >
+        <button class="absolute top-8 right-8 text-white text-6xl font-light hover:text-neon-orange transition-colors z-50">×</button>
+        <img :src="activeImage" class="max-w-[90vw] max-h-[90vh] object-contain p-4 cursor-default anim-bounceIn shadow-[0_0_100px_rgba(255,107,0,0.2)] rounded-2xl" @click.stop />
       </div>
     </Transition>
 
-    <Footer />
-    <Toast />
-  </div>
+    <!-- Sticky Mobile Bar -->
+    <Transition name="slideUp">
+      <div 
+        v-if="showMobileBar" 
+         class="fixed bottom-0 left-0 w-full z-40 p-4 lg:hidden"
+      >
+        <div class="glass-light dark:glass-card !bg-black/80 backdrop-blur-xl border border-white/20 flex items-center justify-between p-4 shadow-[0_-10px_50px_rgba(0,0,0,0.8)] rounded-2xl">
+          <div>
+            <div class="font-bold text-sm line-clamp-1 uppercase tracking-widest">{{ product.name }}</div>
+            <div class="text-neon-orange font-bold font-display text-xl">${{ product.price }}</div>
+          </div>
+          <button class="btn-glow-orange py-3 px-6 text-sm whitespace-nowrap" @click="toggleCart(true)">
+            VIEW CART
+          </button>
+        </div>
+      </div>
+    </Transition>
+  </main>
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import Footer from '../components/Footer.vue'
-import Navbar from '../components/Navbar.vue'
-import ProductCard from '../components/ProductCard.vue'
-import Toast from '../components/Toast.vue'
-import api from '../services/api'
-import { useCartStore } from '../stores/cartStore'
-import { useToastStore } from '../stores/toastStore'
-import { useWishlistStore } from '../stores/wishlistStore'
+import { ref, onMounted, onUnmounted, nextTick } from 'vue'
+import { RouterLink } from 'vue-router'
+import { addToCart, toggleCart } from '../composables/useCart'
+import { useCountUp } from '../composables/useCountUp'
+import { useRipple } from '../composables/useRipple'
 
-const route = useRoute()
-const router = useRouter()
-const cartStore = useCartStore()
-const toastStore = useToastStore()
-const wishlistStore = useWishlistStore()
+// MOCK DATA
+const product = {
+  id: 1,
+  name: 'NEON DEMON HOODIE',
+  price: 85,
+  badge: '🔥 HOT DROP',
+  description: 'Heavyweight 500gsm cotton fleece. Boxy fit with dropped shoulders. High-density puff print graphic on the back with neon glow effect ink. Limited run of 500 pieces.',
+  images: [
+    'https://images.unsplash.com/photo-1556821840-3a63f95609a7?q=80&w=800&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1529374255404-311a2a4f1fd9?q=80&w=800&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1578587018452-892bace01140?q=80&w=800&auto=format&fit=crop'
+  ]
+}
 
-const product = ref(null)
-const related = ref([])
-const activeImage = ref('')
-const selectedColor = ref('')
-const selectedSize = ref('')
+const activeImage = ref(product.images[0])
+const selectedSize = ref('L')
 const quantity = ref(1)
-const addedToCart = ref(false)
-const pincode = ref('')
-const deliveryMessage = ref('')
-const sizeGuideOpen = ref(false)
 
-const sampleReviews = [
-  { name: 'Riya S.', text: 'The fit and quality are incredible. Highly recommend.' },
-  { name: 'Arjun K.', text: 'Looks exactly like the photos. Loved the print quality.' }
-]
-
-const sizeChart = [
-  { size: 'XS', chest: '36', length: '25' },
-  { size: 'S', chest: '38', length: '26' },
-  { size: 'M', chest: '40', length: '27' },
-  { size: 'L', chest: '42', length: '28' },
-  { size: 'XL', chest: '44', length: '29' },
-  { size: 'XXL', chest: '46', length: '30' }
-]
-
-const gallery = computed(() => {
-  if (!product.value) return []
-  const base = [product.value.image_url, product.value.image_url_hover || product.value.image_url]
-  while (base.length < 4) base.push(product.value.image_url)
-  return base.slice(0, 4)
+// Price Counter
+const { count: animatedPrice, startCount: sp } = useCountUp()
+onMounted(() => {
+  nextTick(() => sp(product.price, 600)) // fast count
 })
 
-const colors = computed(() => (product.value?.colors?.length ? product.value.colors : ['Black', 'White']))
-const sizes = computed(() => (product.value?.sizes?.length ? product.value.sizes : ['S', 'M', 'L', 'XL']))
+// Lightbox
+const lightboxOpen = ref(false)
+const handleEsc = (e) => {
+  if (e.key === 'Escape') lightboxOpen.value = false
+}
+onMounted(() => window.addEventListener('keydown', handleEsc))
+onUnmounted(() => window.removeEventListener('keydown', handleEsc))
 
-const discountPercent = computed(() => {
-  if (!product.value?.original_price) return 0
-  return Math.round(((product.value.original_price - product.value.price) / product.value.original_price) * 100)
+// Mobile Sticky Bar
+const showMobileBar = ref(false)
+onMounted(() => {
+  setTimeout(() => showMobileBar.value = true, 1000) // Slide up after mount
 })
 
-const badgeClass = computed(() => {
-  const badge = (product.value?.badge || '').toUpperCase()
-  if (badge === 'NEW') return 'badge-new'
-  if (badge === 'SALE') return 'badge-sale'
-  if (badge === 'HOT') return 'badge-hot'
-  if (badge === 'BESTSELLER') return 'badge-best'
-  return 'badge-limited'
-})
+// Magnetic Button Effect & Ripple
+const { createRipple } = useRipple()
+const cartBtn = ref(null)
+const magneticTransform = ref('')
+const magneticTextTransform = ref('')
+const cartStatus = ref('idle')
 
-function colorToHex(color) {
-  const c = color.toLowerCase()
-  if (c.includes('black')) return '#111827'
-  if (c.includes('white')) return '#f8fafc'
-  if (c.includes('blue') || c.includes('navy')) return '#1e3a8a'
-  if (c.includes('green')) return '#166534'
-  if (c.includes('red')) return '#dc2626'
-  return '#9ca3af'
+const handleMagneticMove = (e) => {
+  if (!cartBtn.value) return
+  const rect = cartBtn.value.getBoundingClientRect()
+  const x = e.clientX - rect.left - rect.width / 2
+  const y = e.clientY - rect.top - rect.height / 2
+  // Move button slightly
+  magneticTransform.value = `translate(${x * 0.15}px, ${y * 0.25}px)`
+  // Move text more for parallax effect
+  magneticTextTransform.value = `translate(${x * 0.1}px, ${y * 0.1}px)`
 }
 
-function scrollToReviews() {
-  document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth' })
-}
-
-async function loadProduct() {
-  const { data } = await api.get(`/products/${route.params.id}`)
-  product.value = data
-  activeImage.value = data.image_url
-  selectedColor.value = colors.value[0]
-  selectedSize.value = sizes.value[0]
-
-  const { data: relatedData } = await api.get(`/products/related/${route.params.id}`)
-  related.value = relatedData
-
-  const stored = JSON.parse(localStorage.getItem('recentlyViewed') || '[]')
-  const updated = [product.value.id, ...stored.filter((i) => i !== product.value.id)].slice(0, 6)
-  localStorage.setItem('recentlyViewed', JSON.stringify(updated))
-}
-
-function addToCart() {
-  for (let i = 0; i < quantity.value; i++) {
-    cartStore.addItem(product.value, selectedSize.value, selectedColor.value)
-  }
-  toastStore.success('✅ Added to cart!')
-  addedToCart.value = true
+const resetMagneticMove = () => {
+  magneticTransform.value = 'translate(0, 0)'
+  magneticTransform.value += ' transition: transform 0.3s ease-out'
   setTimeout(() => {
-    addedToCart.value = false
-  }, 1500)
+    magneticTransform.value = 'translate(0, 0)' // remove transition for seamless mouse move later
+  }, 300)
+  magneticTextTransform.value = 'translate(0, 0)'
 }
 
-function buyNow() {
-  addToCart()
-  router.push('/checkout')
+const handleAddToCart = (e) => {
+  if (cartStatus.value !== 'idle') return
+  createRipple(e)
+  cartStatus.value = 'loading'
+  
+  setTimeout(() => {
+    cartStatus.value = 'success'
+    addToCart({ ...product, size: selectedSize.value, quantity: quantity.value })
+    setTimeout(() => {
+      cartStatus.value = 'idle'
+    }, 2000)
+  }, 600)
 }
-
-function toggleWishlist() {
-  const already = wishlistStore.isWishlisted(product.value.id)
-  wishlistStore.toggle(product.value.id)
-  toastStore.info(already ? 'Removed from wishlist' : '❤️ Added to wishlist')
-}
-
-async function checkPincode() {
-  try {
-    const { data } = await api.get('/delivery/check', { params: { pincode: pincode.value } })
-    if (data.available) deliveryMessage.value = `✅ Delivery in ${data.days} days to ${pincode.value}`
-  } catch (_e) {
-    deliveryMessage.value = '❌ Delivery not available for this pincode'
-  }
-}
-
-async function shareProduct() {
-  if (navigator.share) {
-    await navigator.share({ title: product.value.name, url: window.location.href })
-  } else {
-    await navigator.clipboard.writeText(window.location.href)
-    toastStore.info('Link copied to clipboard')
-  }
-}
-
-onMounted(loadProduct)
 </script>
+
+<style scoped>
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+.slideUp-enter-active {
+  animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.slideUp-leave-active {
+  animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) reverse forwards;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.fade-enter-active, .fade-leave-active { transition: opacity 0.4s; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
+</style>
