@@ -35,7 +35,7 @@ export const SAMPLE_PRODUCTS: CatalogProduct[] = [
     discountPrice: 899,
     images: [
       "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800",
-      "https://images.unsplash.com/photo-1503341504253-dff4f94032fc?w=800",
+      "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=800&q=80",
     ],
     sizes: [
       { size: "S", stock: 0 },
@@ -61,7 +61,7 @@ export const SAMPLE_PRODUCTS: CatalogProduct[] = [
     discountPrice: 899,
     images: [
       "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800",
-      "https://images.unsplash.com/photo-1503341504253-dff4f94032fc?w=800",
+      "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=800&q=80",
     ],
     sizes: [
       { size: "S", stock: 10 },
@@ -262,4 +262,3 @@ export function searchSampleProducts(q: string): Array<CatalogProduct & { isSold
 
   return scored.slice(0, 6).map(({ p }) => ({ ...p, isSoldOut: catalogSoldOut(p) }));
 }
-
