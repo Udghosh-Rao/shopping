@@ -7,26 +7,44 @@ import { Minus, Plus, Trash2, ShoppingBag, ArrowRight, Tag } from 'lucide-react'
 import { useCart } from '@/lib/cartStore';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
+import RecentlyViewed from '@/components/store/RecentlyViewed';
 
 export default function CartPage() {
   const { items, totalItems, totalPrice, removeItem, updateQuantity, clearCart } = useCart();
   const [couponCode, setCouponCode] = useState('');
   const [discount, setDiscount] = useState(0);
+  const [couponLoading, setCouponLoading] = useState(false);
 
   const deliveryCharge = totalPrice > 999 ? 0 : 99;
   const finalTotal = totalPrice - discount + deliveryCharge;
 
-  const applyCoupon = () => {
-    if (couponCode.toUpperCase() === 'WELCOME30') {
-      const d = Math.round(totalPrice * 0.3);
-      setDiscount(d);
-      toast.success(`Coupon applied! You save ₹${d.toLocaleString()}`);
-    } else if (couponCode.toUpperCase() === 'FLAT200') {
-      setDiscount(200);
-      toast.success('Coupon applied! You save ₹200');
-    } else {
-      toast.error('Invalid coupon code');
+  const applyCoupon = async () => {
+    if (!couponCode.trim()) {
+      toast.error('Enter a coupon code');
+      return;
+    }
+
+    setCouponLoading(true);
+    try {
+      const res = await fetch('/api/coupon', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: couponCode, orderAmount: totalPrice }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        toast.error(data.error || 'Invalid coupon code');
+        setDiscount(0);
+      } else {
+        setDiscount(data.discount);
+        toast.success(`₹${data.discount} discount applied! 🎉`);
+      }
+    } catch {
+      toast.error('Failed to apply coupon');
       setDiscount(0);
+    } finally {
+      setCouponLoading(false);
     }
   };
 
@@ -174,16 +192,17 @@ export default function CartPage() {
                 <input
                   type="text"
                   value={couponCode}
-                  onChange={(e) => setCouponCode(e.target.value)}
-                  placeholder="Coupon code"
-                  className="w-full pl-10 pr-4 py-2.5 bg-[var(--input-bg)] border border-[var(--input-border)] rounded-xl text-sm focus:outline-none focus:border-accent"
+                  onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                  placeholder="ENTER COUPON CODE"
+                  className="w-full pl-10 pr-4 py-2.5 bg-[var(--input-bg)] border-2 border-dashed border-[var(--input-border)] rounded-xl text-sm font-bold tracking-widest focus:outline-none focus:border-[#0A0A0A] uppercase"
                 />
               </div>
               <button
                 onClick={applyCoupon}
-                className="px-4 py-2.5 bg-foreground text-background text-sm font-semibold rounded-xl hover:bg-accent transition-colors"
+                disabled={couponLoading}
+                className="px-4 py-2.5 bg-foreground text-background text-sm font-semibold rounded-xl hover:bg-accent transition-colors disabled:opacity-60"
               >
-                Apply
+                {couponLoading ? '...' : 'APPLY'}
               </button>
             </div>
 
@@ -225,6 +244,8 @@ export default function CartPage() {
           </div>
         </div>
       </div>
+
+      <RecentlyViewed />
     </div>
   );
 }

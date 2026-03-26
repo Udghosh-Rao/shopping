@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowRight, Tag } from "lucide-react";
 import MagneticButton from "@/components/ui/MagneticButton";
 import RevealText from "@/components/ui/RevealText";
+import CountdownTimer from "@/components/ui/CountdownTimer";
 
 export default function OfferBanner() {
   return (
@@ -39,6 +40,9 @@ export default function OfferBanner() {
           <p className="text-gray-400 mt-2 text-sm">
             Use code <span className="text-white font-bold bg-white/10 px-2 py-0.5 rounded-md">DRIP50</span> at checkout
           </p>
+          <div className="mt-4 max-w-md">
+            <CountdownTimer hoursFromNow={6} />
+          </div>
         </div>
 
         <MagneticButton className="relative z-10">

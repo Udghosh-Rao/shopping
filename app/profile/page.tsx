@@ -9,6 +9,7 @@ import Link from 'next/link';
 import {
   User, MapPin, Package, Heart, LogOut, Loader2, Edit2,
 } from 'lucide-react';
+import OrderTracker from '@/components/ui/OrderTracker';
 
 interface Order {
   _id: string;
@@ -199,6 +200,9 @@ function ProfileContent() {
                         <span className="text-sm font-medium">₹{(item.price * item.quantity).toLocaleString()}</span>
                       </div>
                     ))}
+                  </div>
+                  <div className="mt-5 pt-4 border-t border-[var(--border)]">
+                    <OrderTracker status={order.orderStatus} />
                   </div>
                   <div className="mt-4 pt-3 border-t border-[var(--border)] flex justify-between items-center">
                     <span className="text-sm text-muted">Total</span>

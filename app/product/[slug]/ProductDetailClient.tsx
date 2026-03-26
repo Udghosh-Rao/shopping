@@ -1,13 +1,18 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, ShoppingBag, Minus, Plus, ChevronRight, Ruler } from 'lucide-react';
+import { Heart, ShoppingBag, Minus, Plus, ChevronRight } from 'lucide-react';
 import { useCart } from '@/lib/cartStore';
 import toast from 'react-hot-toast';
 import ProductCard from '@/components/store/ProductCard';
 import Link from 'next/link';
+import SizeGuide from '@/components/ui/SizeGuide';
+import RestockNotify from '@/components/ui/RestockNotify';
+import CountdownTimer from '@/components/ui/CountdownTimer';
+import RecentlyViewed from '@/components/store/RecentlyViewed';
+import { addRecentlyViewed } from '@/lib/recentlyViewed';
 
 interface Product {
   _id: string;
@@ -37,7 +42,6 @@ export default function ProductDetailClient({ product, relatedProducts }: Props)
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState<'description' | 'care'>('description');
   const [isWishlisted, setIsWishlisted] = useState(false);
-  const [showSizeGuide, setShowSizeGuide] = useState(false);
 
   const discount = product.discountPrice
     ? Math.round(((product.price - product.discountPrice) / product.price) * 100)
@@ -68,6 +72,21 @@ export default function ProductDetailClient({ product, relatedProducts }: Props)
     });
     toast.success('Added to cart!');
   };
+
+  useEffect(() => {
+    addRecentlyViewed({
+      _id: product._id,
+      name: product.name,
+      slug: product.slug,
+      price: product.price,
+      discountPrice: product.discountPrice,
+      images: product.images,
+      category: product.category,
+      gender: product.gender,
+      isNewArrival: false,
+      sizes: product.sizes,
+    });
+  }, [product]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
@@ -179,13 +198,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Props)
           <div>
             <div className="flex items-center justify-between mb-3">
               <h3 className="font-semibold">Select Size</h3>
-              <button
-                onClick={() => setShowSizeGuide(true)}
-                className="text-sm text-accent font-medium flex items-center gap-1 hover:underline"
-              >
-                <Ruler className="w-3.5 h-3.5" />
-                Size Guide
-              </button>
+              <SizeGuide />
             </div>
             <div className="flex flex-wrap gap-2">
               {product.sizes.map((s) => (
@@ -211,6 +224,10 @@ export default function ProductDetailClient({ product, relatedProducts }: Props)
               </p>
             )}
           </div>
+
+          {product.discountPrice && <CountdownTimer hoursFromNow={6} />}
+
+          {product.stock <= 0 && <RestockNotify productName={product.name} />}
 
           {/* Quantity */}
           <div>
@@ -317,64 +334,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Props)
         </section>
       )}
 
-      {/* Size Guide Modal */}
-      <AnimatePresence>
-        {showSizeGuide && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-[var(--overlay)] z-50"
-              onClick={() => setShowSizeGuide(false)}
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="fixed inset-x-4 top-1/2 -translate-y-1/2 max-w-lg mx-auto bg-[var(--background)] rounded-2xl p-6 sm:p-8 z-[60] overflow-y-auto max-h-[80vh]"
-            >
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-bold">Size Guide</h3>
-                <button
-                  onClick={() => setShowSizeGuide(false)}
-                  className="p-2 hover:bg-[var(--input-bg)] rounded-xl transition-colors"
-                >
-                  ✕
-                </button>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-[var(--border)]">
-                      <th className="py-3 pr-4 text-left font-semibold">Size</th>
-                      <th className="py-3 px-4 text-left font-semibold">Chest (in)</th>
-                      <th className="py-3 px-4 text-left font-semibold">Length (in)</th>
-                      <th className="py-3 pl-4 text-left font-semibold">Shoulder (in)</th>
-                    </tr>
-                  </thead>
-                  <tbody className="text-muted">
-                    {[
-                      ['S', '36-38', '27', '16.5'],
-                      ['M', '38-40', '28', '17'],
-                      ['L', '40-42', '29', '17.5'],
-                      ['XL', '42-44', '30', '18'],
-                      ['XXL', '44-46', '31', '18.5'],
-                    ].map(([size, chest, length, shoulder]) => (
-                      <tr key={size} className="border-b border-[var(--border)]">
-                        <td className="py-3 pr-4 font-medium text-foreground">{size}</td>
-                        <td className="py-3 px-4">{chest}</td>
-                        <td className="py-3 px-4">{length}</td>
-                        <td className="py-3 pl-4">{shoulder}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+      <RecentlyViewed />
     </div>
   );
 }

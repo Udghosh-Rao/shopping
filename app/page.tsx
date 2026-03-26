@@ -7,6 +7,7 @@ import WhyChooseUs from "@/components/store/WhyChooseUs";
 import ReviewsSection from "@/components/store/ReviewsSection";
 import OfferBanner from "@/components/store/OfferBanner";
 import AnimatedCounter from "@/components/ui/AnimatedCounter";
+import Lookbook from "@/components/store/Lookbook";
 
 export default function HomePage() {
   return (
@@ -37,6 +38,7 @@ export default function HomePage() {
       <FeaturedProducts />
       <WhyChooseUs />
       <ReviewsSection />
+      <Lookbook />
     </main>
   );
 }
