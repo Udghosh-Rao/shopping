@@ -4,12 +4,16 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function CustomCursor() {
+  if (typeof window === "undefined") return null;
+
   const [pos, setPos] = useState({ x: 0, y: 0 });
   const [hovered, setHovered] = useState(false);
   const [label, setLabel] = useState("VIEW");
   const [enabled, setEnabled] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     setEnabled(window.matchMedia("(hover: hover) and (pointer: fine)").matches);
 
     const move = (e: MouseEvent) => {
@@ -40,7 +44,7 @@ export default function CustomCursor() {
     };
   }, []);
 
-  if (!enabled) return null;
+  if (!mounted || !enabled) return null;
 
   return (
     <>

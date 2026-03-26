@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import MagneticButton from "@/components/ui/MagneticButton";
 
@@ -90,7 +91,7 @@ export default function HeroBanner() {
         0{current + 1}
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16 w-full pt-24 pb-16">
+      <div className="max-w-7xl mx-auto px-6 md:px-10 w-full">
         <AnimatePresence mode="wait" custom={direction}>
           <motion.div
             key={slide.id}
@@ -203,30 +204,26 @@ export default function HeroBanner() {
               transition={{ delay: 0.2, duration: 0.6 }}
               className="hidden lg:flex items-center justify-center"
             >
-              <div
-                className="relative w-full max-w-md aspect-[3/4] rounded-2xl overflow-hidden"
-                style={{ background: `${slide.textColor}10` }}
-              >
-                <div
-                  className="absolute inset-0 flex flex-col items-center justify-center gap-4"
-                  style={{ color: slide.textColor }}
-                >
-                  <div className="text-6xl">👕</div>
-                  <p className="text-sm font-bold tracking-widest opacity-40">HERO IMAGE</p>
-                  <p className="text-xs opacity-30">/public/images/hero-{current + 1}.png</p>
-                </div>
+              <div className="relative w-full max-w-md aspect-[3/4] rounded-2xl overflow-hidden bg-gray-900">
+                <Image
+                  src={`/images/hero-${current + 1}.png`}
+                  alt={`Hero slide ${current + 1}`}
+                  fill
+                  className="object-cover object-top"
+                  priority
+                />
 
                 <motion.div
                   animate={{ y: [0, -10, 0] }}
                   transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                  className="absolute top-6 right-6 px-4 py-2 rounded-full text-xs font-bold"
+                  className="absolute top-6 right-6 px-4 py-2 rounded-full text-xs font-bold z-10"
                   style={{ background: slide.accent, color: "#fff" }}
                 >
                   NEW DROP
                 </motion.div>
 
                 <div
-                  className="absolute bottom-6 left-6 px-4 py-3 rounded-xl"
+                  className="absolute bottom-6 left-6 px-4 py-3 rounded-xl z-10"
                   style={{ background: slide.bg, color: slide.textColor }}
                 >
                   <p className="text-xs opacity-50 font-medium">Starting from</p>

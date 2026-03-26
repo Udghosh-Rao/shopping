@@ -3,13 +3,16 @@
 import { motion } from "framer-motion";
 
 const items = [
-  "FREE SHIPPING ABOVE ₹599",
-  "NEW DROP EVERY FRIDAY ✦",
-  "100% AUTHENTIC PRODUCTS",
-  "EASY 15-DAY RETURNS ✦",
-  "SHOP MEN & WOMEN",
-  "PAY VIA UPI, CARDS & MORE ✦",
+  "FREE SHIP ABOVE ₹599",
+  "✦",
+  "NEW DROP EVERY FRIDAY",
+  "✦",
+  "EASY 15-DAY RETURNS",
+  "✦",
+  "USE CODE DRIP50",
+  "✦",
   "MADE IN INDIA 🇮🇳",
+  "✦",
 ];
 
 export default function MarqueeBanner() {
@@ -22,7 +25,7 @@ export default function MarqueeBanner() {
         className="flex whitespace-nowrap will-change-transform"
       >
         {repeated.map((item, i) => (
-          <span key={i} className="text-[11px] font-bold tracking-[0.25em] mx-10 flex-shrink-0">
+          <span key={i} className="text-[11px] font-bold tracking-[0.2em] mx-6 flex-shrink-0">
             {item}
           </span>
         ))}
