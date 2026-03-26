@@ -11,7 +11,7 @@ import Lookbook from "@/components/store/Lookbook";
 
 export default function HomePage() {
   return (
-    <main className="overflow-x-hidden">
+    <div className="overflow-x-hidden">
       <HeroBanner />
       <MarqueeBanner />
       <CategoryCards />
@@ -39,6 +39,6 @@ export default function HomePage() {
       <WhyChooseUs />
       <ReviewsSection />
       <Lookbook />
-    </main>
+    </div>
   );
 }

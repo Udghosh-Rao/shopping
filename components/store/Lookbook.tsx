@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 import { Camera } from "lucide-react";
 import RevealText from "@/components/ui/RevealText";
 
@@ -32,8 +33,14 @@ export default function Lookbook() {
             transition={{ delay: i * 0.07 }}
             className="group relative aspect-square bg-[#F8F5F0] rounded-xl overflow-hidden cursor-pointer"
           >
-            <div className="absolute inset-0 flex items-center justify-center text-3xl bg-gradient-to-br from-gray-100 to-gray-200">
-              📸
+            <div className="absolute inset-0">
+              <Image
+                src={post.image}
+                alt={post.tag}
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 33vw, 16vw"
+              />
             </div>
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-all duration-300 flex flex-col items-center justify-center gap-1 opacity-0 group-hover:opacity-100">
               <Camera size={20} className="text-white" />

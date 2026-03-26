@@ -67,7 +67,7 @@ export default function FeaturedProducts() {
         style={{ scrollSnapType: "x mandatory" }}
       >
         {products.map((product) => (
-          <div key={product._id} className="flex-shrink-0 w-[calc(50%-8px)] md:w-64" style={{ scrollSnapAlign: "start" }}>
+          <div key={product._id} className="flex-shrink-0 w-[48%] sm:w-[42%] md:w-64" style={{ scrollSnapAlign: "start" }}>
             <ProductCard product={product} />
           </div>
         ))}
