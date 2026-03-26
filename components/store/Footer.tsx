@@ -71,29 +71,6 @@ const socialLinks = [
 export default function Footer() {
   return (
     <footer className="bg-[#0A0A0A] text-white pb-24 md:pb-0">
-      <div className="border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-4 md:px-8 py-14 md:py-16 grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-10 lg:gap-14 items-center">
-          <div className="max-w-xl">
-            <p className="text-[#E63946] text-xs font-bold tracking-[0.12em] mb-2">STAY IN THE LOOP</p>
-            <h3 className="text-2xl md:text-3xl font-black tracking-tight">DROP ALERTS + EXCLUSIVE OFFERS</h3>
-            <p className="text-gray-400 text-sm md:text-base mt-2">Get notified before everyone else. No spam, only drip. 🔥</p>
-          </div>
-          <div className="w-full max-w-xl">
-            <div className="flex w-full">
-            <input
-              type="email"
-              placeholder="your@email.com"
-              className="bg-white/5 border border-white/20 px-4 py-3.5 text-sm w-full outline-none focus:border-[#E63946] rounded-l-xl transition-colors placeholder:text-gray-500"
-            />
-            <button className="bg-[#E63946] px-6 py-3.5 text-sm font-black tracking-[0.08em] hover:bg-red-700 transition-colors rounded-r-xl whitespace-nowrap">
-              SUBSCRIBE
-            </button>
-          </div>
-            <p className="text-xs text-gray-500 mt-3">We only send product drops, sale alerts, and important updates.</p>
-          </div>
-        </div>
-      </div>
-
       <div className="max-w-7xl mx-auto px-4 md:px-8 py-14 grid grid-cols-1 md:grid-cols-[1.2fr_1fr_1fr_1fr] gap-10 md:gap-12">
         <div>
           <Link href="/" className="flex items-center gap-1.5 mb-4">
