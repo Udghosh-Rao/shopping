@@ -1,10 +1,12 @@
+from datetime import datetime, timedelta
+from random import sample
+
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
-from sqlalchemy import or_
+from flask_jwt_extended import JWTManager, create_access_token, get_jwt_identity, jwt_required
+from sqlalchemy import desc, or_
 
-from models import db, User, Product, CartItem, Wishlist, Order, OrderItem, Address
-
+from models import Address, CartItem, Order, OrderItem, Product, User, Wishlist, db
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
@@ -14,6 +16,23 @@ app.config["JWT_SECRET_KEY"] = "change-me-in-production-f8b23e4a9d1c"
 CORS(app, origins=["http://localhost:5173"])
 db.init_app(app)
 jwt = JWTManager(app)
+
+
+@app.after_request
+def add_headers(response):
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    return response
+
+
+@app.errorhandler(404)
+def not_found(_e):
+    return jsonify({"error": "Not found"}), 404
+
+
+@app.errorhandler(500)
+def server_error(_e):
+    return jsonify({"error": "Server error"}), 500
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -76,7 +95,6 @@ def get_current_user():
 
 @app.get("/api/products")
 def get_products():
-    # Query parameters
     category = request.args.get("category")
     subcategory = request.args.get("subcategory")
     badge = request.args.get("badge")
@@ -84,23 +102,27 @@ def get_products():
     min_price = request.args.get("min_price", type=float)
     max_price = request.args.get("max_price", type=float)
     sort = request.args.get("sort", "newest")
+    featured = request.args.get("featured")
     page = request.args.get("page", 1, type=int)
     per_page = request.args.get("per_page", 12, type=int)
 
     query = Product.query
 
-    # Filters
     if category:
         query = query.filter(Product.category == category)
     if subcategory:
         query = query.filter(Product.subcategory == subcategory)
     if badge:
-        query = query.filter(Product.badge == badge)
+        query = query.filter(Product.badge == badge.upper())
+    if featured and str(featured).lower() == "true":
+        query = query.filter(Product.badge.in_(["BESTSELLER", "NEW", "HOT"]))
     if search:
         query = query.filter(
             or_(
                 Product.name.ilike(f"%{search}%"),
-                Product.description.ilike(f"%{search}%")
+                Product.category.ilike(f"%{search}%"),
+                Product.subcategory.ilike(f"%{search}%"),
+                Product.description.ilike(f"%{search}%"),
             )
         )
     if min_price is not None:
@@ -108,25 +130,47 @@ def get_products():
     if max_price is not None:
         query = query.filter(Product.price <= max_price)
 
-    # Sorting
     if sort == "price_asc":
         query = query.order_by(Product.price.asc())
     elif sort == "price_desc":
         query = query.order_by(Product.price.desc())
     elif sort == "rating":
         query = query.order_by(Product.rating.desc())
-    else:  # newest
+    elif sort == "popular":
+        query = query.order_by(Product.reviews.desc(), Product.rating.desc())
+    else:
         query = query.order_by(Product.created_at.desc())
 
-    # Pagination
     paginated = query.paginate(page=page, per_page=per_page, error_out=False)
 
-    return jsonify({
-        "products": [p.to_dict() for p in paginated.items],
-        "total": paginated.total,
-        "pages": paginated.pages,
-        "current_page": page
-    }), 200
+    return jsonify(
+        {
+            "products": [p.to_dict() for p in paginated.items],
+            "page": page,
+            "per_page": per_page,
+            "total": paginated.total,
+            "pages": paginated.pages,
+            "current_page": page,
+        }
+    ), 200
+
+
+@app.get("/api/products/bulk")
+def get_products_bulk():
+    ids_param = request.args.get("ids", "")
+    ids = []
+    for value in ids_param.split(","):
+        value = value.strip()
+        if value.isdigit():
+            ids.append(int(value))
+
+    if not ids:
+        return jsonify([]), 200
+
+    products = Product.query.filter(Product.id.in_(ids)).all()
+    product_map = {p.id: p.to_dict() for p in products}
+    ordered = [product_map[i] for i in ids if i in product_map]
+    return jsonify(ordered), 200
 
 
 @app.get("/api/products/<int:product_id>")
@@ -139,9 +183,12 @@ def get_product(product_id):
 
 @app.get("/api/products/featured")
 def get_featured_products():
-    products = Product.query.filter(
-        or_(Product.badge == "BESTSELLER", Product.badge == "NEW")
-    ).order_by(Product.rating.desc()).limit(8).all()
+    products = (
+        Product.query.filter(or_(Product.badge == "BESTSELLER", Product.badge == "NEW"))
+        .order_by(Product.rating.desc())
+        .limit(8)
+        .all()
+    )
     return jsonify([p.to_dict() for p in products]), 200
 
 
@@ -151,11 +198,30 @@ def get_related_products(product_id):
     if not product:
         return jsonify({"error": "Product not found"}), 404
 
-    related = Product.query.filter(
-        Product.category == product.category,
-        Product.id != product_id
-    ).limit(4).all()
+    related = Product.query.filter(Product.category == product.category, Product.id != product_id).limit(6).all()
     return jsonify([p.to_dict() for p in related]), 200
+
+
+@app.get("/api/flash-sale")
+def get_flash_sale():
+    sale_products = Product.query.filter(Product.badge == "SALE").all()
+    if len(sale_products) >= 4:
+        selected = sample(sale_products, 4)
+    else:
+        selected = Product.query.order_by(desc(Product.discount_percent)).limit(4).all()
+
+    ends_at = (datetime.utcnow() + timedelta(hours=24)).isoformat() + "Z"
+    return jsonify({"ends_at": ends_at, "products": [p.to_dict() for p in selected]}), 200
+
+
+@app.get("/api/delivery/check")
+def check_delivery():
+    pincode = request.args.get("pincode", "")
+    valid = pincode.isdigit() and len(pincode) == 6
+    if not valid:
+        return jsonify({"available": False, "error": "Invalid pincode"}), 400
+
+    return jsonify({"available": True, "days": "3-5", "free": True}), 200
 
 
 @app.get("/api/categories")
@@ -199,26 +265,14 @@ def add_to_cart():
     if not product:
         return jsonify({"error": "Product not found"}), 404
 
-    # Check if item already exists with same size/color
-    existing = CartItem.query.filter_by(
-        user_id=user_id,
-        product_id=product_id,
-        size=size,
-        color=color
-    ).first()
+    existing = CartItem.query.filter_by(user_id=user_id, product_id=product_id, size=size, color=color).first()
 
     if existing:
         existing.quantity += quantity
         db.session.commit()
         return jsonify(existing.to_dict()), 200
 
-    cart_item = CartItem(
-        user_id=user_id,
-        product_id=product_id,
-        quantity=quantity,
-        size=size,
-        color=color
-    )
+    cart_item = CartItem(user_id=user_id, product_id=product_id, quantity=quantity, size=size, color=color)
     db.session.add(cart_item)
     db.session.commit()
     return jsonify(cart_item.to_dict()), 201
@@ -326,12 +380,10 @@ def checkout():
     address_data = data.get("address")
     payment_method = data.get("payment_method", "COD")
 
-    # Get cart items
     cart_items = CartItem.query.filter_by(user_id=user_id).all()
     if not cart_items:
         return jsonify({"error": "Cart is empty"}), 400
 
-    # Create or use address
     address_id = None
     if address_data:
         if isinstance(address_data, int):
@@ -346,38 +398,28 @@ def checkout():
                 city=address_data.get("city"),
                 state=address_data.get("state"),
                 pincode=address_data.get("pincode"),
-                is_default=address_data.get("is_default", False)
+                is_default=address_data.get("is_default", False),
             )
             db.session.add(address)
             db.session.flush()
             address_id = address.id
 
-    # Calculate total
     total = sum(item.product.price * item.quantity for item in cart_items)
 
-    # Create order
-    order = Order(
-        user_id=user_id,
-        address_id=address_id,
-        total=total,
-        payment_method=payment_method,
-        status="pending"
-    )
+    order = Order(user_id=user_id, address_id=address_id, total=total, payment_method=payment_method, status="pending")
     db.session.add(order)
     db.session.flush()
 
-    # Create order items
     for cart_item in cart_items:
         order_item = OrderItem(
             order_id=order.id,
             product_id=cart_item.product_id,
             quantity=cart_item.quantity,
             size=cart_item.size,
-            price=cart_item.product.price
+            price=cart_item.product.price,
         )
         db.session.add(order_item)
 
-    # Clear cart
     CartItem.query.filter_by(user_id=user_id).delete()
 
     db.session.commit()
@@ -429,7 +471,7 @@ def add_address():
         city=data.get("city"),
         state=data.get("state"),
         pincode=data.get("pincode"),
-        is_default=data.get("is_default", False)
+        is_default=data.get("is_default", False),
     )
     db.session.add(address)
     db.session.commit()
@@ -470,10 +512,6 @@ def delete_address(address_id):
     db.session.commit()
     return jsonify({"message": "Address deleted"}), 200
 
-
-# ═══════════════════════════════════════════════════════════════════════════
-# DATABASE INITIALIZATION
-# ═══════════════════════════════════════════════════════════════════════════
 
 with app.app_context():
     db.create_all()

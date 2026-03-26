@@ -1,40 +1,55 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-[#0d0d0d] to-[#1a1a2e] flex items-center justify-center px-4">
-    <div class="bg-white rounded-lg shadow-2xl p-8 w-full max-w-md">
-      <h1 class="text-3xl font-black text-center mb-2">LOGIN</h1>
-      <p class="text-center text-gray-600 mb-6">Welcome back to ShopZone</p>
-
-      <form @submit.prevent="handleLogin" class="space-y-4">
-        <div>
-          <label class="block text-sm font-bold mb-2">EMAIL</label>
-          <input v-model="email" type="email" required class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#ff6b00]" placeholder="your.email@example.com" />
+  <div class="min-h-screen lg:grid lg:grid-cols-2">
+    <div class="hidden lg:flex bg-gradient-to-br from-[#0d0d0d] to-[#1a1a2e] text-white p-12 relative overflow-hidden items-center">
+      <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(circle at 1px 1px, white 1px, transparent 0); background-size: 24px 24px"></div>
+      <div class="relative z-10 max-w-md mx-auto">
+        <h1 class="text-7xl" style="font-family: var(--font-display)">SHOPZONE</h1>
+        <p class="tracking-[0.2em] text-gray-300">WEAR YOUR FANDOM</p>
+        <div class="mt-10 space-y-5 text-sm">
+          <p>✅ Access to 2000+ Licensed Designs</p>
+          <p>🚀 Lightning Fast Checkout</p>
+          <p>🎁 Exclusive Member Discounts</p>
         </div>
-        <div>
-          <label class="block text-sm font-bold mb-2">PASSWORD</label>
-          <input v-model="password" type="password" required class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#ff6b00]" placeholder="••••••••" />
-        </div>
-        <button type="submit" :disabled="loading" class="w-full py-3 bg-[#ff6b00] text-white rounded-lg font-bold hover:bg-[#ff8533] transition disabled:opacity-50">
-          {{ loading ? 'LOGGING IN...' : 'LOGIN' }}
-        </button>
-      </form>
-
-      <p class="text-center mt-6 text-sm">
-        Don't have an account?
-        <RouterLink to="/register" class="text-[#ff6b00] font-bold hover:underline">Register</RouterLink>
-      </p>
+      </div>
     </div>
+
+    <div class="bg-white flex items-center justify-center px-4 py-10">
+      <form class="w-full max-w-md" @submit.prevent="handleLogin">
+        <h2 class="text-5xl" style="font-family: var(--font-display)">WELCOME BACK</h2>
+        <p class="text-gray-500 mt-1">Login to your account</p>
+
+        <div class="mt-6 space-y-4">
+          <input v-model="email" type="email" required class="input-field" placeholder="Email" />
+          <div class="relative">
+            <input v-model="password" :type="showPassword ? 'text' : 'password'" required class="input-field pr-12" placeholder="Password" />
+            <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500" @click="showPassword = !showPassword">{{ showPassword ? '🙈' : '👁️' }}</button>
+          </div>
+          <div class="text-right"><a class="text-orange-500 text-sm">Forgot Password?</a></div>
+          <button class="btn-primary w-full justify-center" :disabled="loading">{{ loading ? 'LOGGING IN...' : 'LOGIN →' }}</button>
+        </div>
+
+        <div class="my-5 flex items-center gap-2 text-gray-400 text-sm"><span class="h-px bg-gray-200 flex-1"></span>OR<span class="h-px bg-gray-200 flex-1"></span></div>
+
+        <button type="button" class="w-full border rounded-full py-3 font-semibold">🟢 Continue with Google</button>
+
+        <p class="text-sm text-gray-600 mt-4 text-center">
+          Don't have an account?
+          <RouterLink to="/register" class="text-orange-500 font-semibold">Register</RouterLink>
+        </p>
+      </form>
+    </div>
+
     <Toast />
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
+import Toast from '../components/Toast.vue'
+import api from '../services/api'
 import { useAuthStore } from '../stores/authStore'
 import { useToastStore } from '../stores/toastStore'
-import api from '../services/api'
-import { RouterLink } from 'vue-router'
-import Toast from '../components/Toast.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -43,15 +58,13 @@ const toastStore = useToastStore()
 
 const email = ref('')
 const password = ref('')
+const showPassword = ref(false)
 const loading = ref(false)
 
-const handleLogin = async () => {
+async function handleLogin() {
   try {
     loading.value = true
-    const { data } = await api.post('/auth/login', {
-      email: email.value,
-      password: password.value
-    })
+    const { data } = await api.post('/auth/login', { email: email.value, password: password.value })
     authStore.login(data.token, data.username, data.email)
     toastStore.success(`👋 Welcome back, ${data.username}!`)
     router.push(route.query.redirect || '/')
