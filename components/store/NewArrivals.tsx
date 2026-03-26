@@ -48,7 +48,7 @@ export default function NewArrivals() {
   }, []);
 
   return (
-    <section className="py-14 md:py-20 px-4 md:px-8 max-w-7xl mx-auto">
+    <section className="py-16 md:py-24 px-4 md:px-8 max-w-7xl mx-auto">
       {loading ? (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {Array.from({ length: 8 }).map((_, i) => (
@@ -63,7 +63,7 @@ export default function NewArrivals() {
           ))}
         </div>
       ) : products.length > 0 ? (
-        <motion.div layout className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
+        <motion.div layout className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 md:gap-7">
           {products.map((product, i) => (
             <motion.div key={product._id} layout initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
               <ProductCard product={product} />
@@ -78,11 +78,11 @@ export default function NewArrivals() {
         </div>
       )}
 
-      <div className="mt-12 text-center">
+      <div className="mt-14 md:mt-16 text-center">
         <MagneticButton className="inline-block">
           <Link
             href="/shop"
-            className="group inline-flex items-center gap-3 px-10 py-4 bg-[#0A0A0A] text-white font-black text-sm tracking-widest rounded-full hover:bg-[#E63946] transition-all duration-300 hover:gap-5"
+            className="group inline-flex items-center gap-3 px-11 py-4 bg-[#0A0A0A] text-white font-black text-sm tracking-[0.18em] rounded-full hover:bg-[#E63946] transition-all duration-300 hover:gap-5"
           >
             VIEW ALL PRODUCTS
             <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />

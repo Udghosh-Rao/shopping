@@ -91,7 +91,7 @@ export default function HeroBanner() {
         0{current + 1}
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10 w-full pt-20 sm:pt-24 md:pt-28 pb-10 md:pb-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 md:px-12 w-full pt-24 sm:pt-28 md:pt-32 pb-14 md:pb-20">
         <AnimatePresence mode="wait" custom={direction}>
           <motion.div
             key={slide.id}
@@ -105,14 +105,14 @@ export default function HeroBanner() {
             animate="center"
             exit="exit"
             transition={{ duration: 0.55, ease: [0.25, 0.46, 0.45, 0.94] }}
-            className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-center min-h-[62vh] md:min-h-[70vh]"
+            className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-16 items-center min-h-[62vh] md:min-h-[70vh]"
           >
             <div>
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="flex flex-wrap items-center gap-2.5 mb-5 md:mb-6"
+                className="flex flex-wrap items-center gap-3 mb-7 md:mb-8"
               >
                 <span
                   className="text-xs font-bold tracking-[0.3em] px-3 py-1.5 rounded-full border"
@@ -125,7 +125,7 @@ export default function HeroBanner() {
                 </span>
               </motion.div>
 
-              <div className="mb-5 md:mb-6">
+              <div className="mb-7 md:mb-8">
                   {slide.title.map((word, i) => (
                   <motion.div
                     key={word}
@@ -135,7 +135,7 @@ export default function HeroBanner() {
                     className="overflow-hidden"
                   >
                     <h1
-                      className="text-[14.5vw] sm:text-[11vw] md:text-[9vw] lg:text-[7.5vw] font-black leading-[0.92] tracking-[-0.03em]"
+                      className="text-[14vw] sm:text-[10.5vw] md:text-[8.5vw] lg:text-[7vw] font-black leading-[0.9] tracking-[-0.03em]"
                       style={{ color: slide.textColor }}
                     >
                       {word}
@@ -148,7 +148,7 @@ export default function HeroBanner() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.45 }}
-                className="text-sm sm:text-base md:text-lg mb-7 md:mb-8 leading-relaxed max-w-md opacity-70"
+                className="text-sm sm:text-base md:text-lg mb-9 md:mb-10 leading-relaxed max-w-lg opacity-70"
                 style={{ color: slide.textColor }}
               >
                 {slide.subtitle}
@@ -158,12 +158,12 @@ export default function HeroBanner() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.55 }}
-                className="flex flex-wrap gap-2.5 md:gap-3 mb-10 md:mb-12"
+                className="flex flex-wrap gap-3 md:gap-4 mb-12 md:mb-14"
               >
                 <MagneticButton className="px-0 py-0">
                   <Link
                     href={slide.link}
-                    className="group flex items-center gap-2 px-6 sm:px-8 py-3.5 sm:py-4 font-bold text-xs sm:text-sm tracking-[0.14em] transition-all duration-300 hover:gap-4"
+                    className="group flex items-center gap-2 px-7 sm:px-9 py-4 font-bold text-xs sm:text-sm tracking-[0.16em] transition-all duration-300 hover:gap-4"
                     style={{ background: slide.accent, color: "#FFFFFF" }}
                   >
                     {slide.cta}
@@ -173,7 +173,7 @@ export default function HeroBanner() {
                 <MagneticButton className="px-0 py-0">
                   <Link
                     href={slide.link2}
-                    className="px-6 sm:px-8 py-3.5 sm:py-4 font-bold text-xs sm:text-sm tracking-[0.14em] border-2 transition-all duration-300 hover:opacity-70"
+                    className="px-7 sm:px-9 py-4 font-bold text-xs sm:text-sm tracking-[0.16em] border-2 transition-all duration-300 hover:opacity-70"
                     style={{ borderColor: slide.textColor, color: slide.textColor }}
                   >
                     {slide.cta2}
@@ -185,7 +185,7 @@ export default function HeroBanner() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.65 }}
-                className="flex flex-wrap gap-x-6 gap-y-3 md:gap-8"
+                className="flex flex-wrap gap-x-8 gap-y-4 md:gap-x-12 md:gap-y-5"
               >
                 {[slide.stat1, slide.stat2, "₹599 Free Ship"].map((stat, i) => (
                   <div key={i}>
@@ -235,7 +235,7 @@ export default function HeroBanner() {
           </motion.div>
         </AnimatePresence>
 
-        <div className="flex items-center justify-between mt-7 md:mt-8">
+        <div className="flex items-center justify-between mt-10 md:mt-12">
           <div className="flex items-center gap-4">
             {slides.map((_, i) => (
               <button

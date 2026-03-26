@@ -56,11 +56,11 @@ export default function FeaturedProducts() {
   }
 
   return (
-    <section className="py-14 md:py-20 px-4 md:px-8 max-w-7xl mx-auto">
-      <div className="flex items-end justify-between gap-4 mb-8 md:mb-10">
+    <section className="py-16 md:py-24 px-4 md:px-8 max-w-7xl mx-auto">
+      <div className="flex items-end justify-between gap-4 mb-10 md:mb-12">
         <div>
           <p className="text-[#E63946] text-xs font-bold tracking-[0.3em] mb-2">HANDPICKED FOR YOU</p>
-          <RevealText text="TRENDING NOW" className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight leading-none" delay={0.1} />
+          <RevealText text="TRENDING NOW" className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight leading-none" delay={0.1} />
         </div>
         <div className="hidden md:flex gap-2">
           <button
@@ -80,7 +80,7 @@ export default function FeaturedProducts() {
 
       <div
         ref={scrollRef}
-        className="flex gap-4 overflow-x-auto scrollbar-hide pb-2 will-change-transform"
+        className="flex gap-5 md:gap-6 overflow-x-auto scrollbar-hide pb-3 will-change-transform"
         style={{ scrollSnapType: "x mandatory" }}
       >
         {products.map((product) => (

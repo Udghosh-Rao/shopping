@@ -31,9 +31,9 @@ const perks = [
 
 export default function WhyChooseUs() {
   return (
-    <section className="py-14 md:py-20 bg-[#F8F5F0]">
+    <section className="py-16 md:py-24 bg-[#F8F5F0]">
       <div className="max-w-7xl mx-auto px-4 md:px-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-7">
           {perks.map((perk, i) => (
             <motion.div
               key={perk.title}
@@ -41,7 +41,7 @@ export default function WhyChooseUs() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
-              className="bg-white rounded-2xl p-6 md:p-8 flex flex-col gap-4 hover:shadow-lg transition-shadow"
+              className="bg-white rounded-2xl p-7 md:p-9 flex flex-col gap-5 hover:shadow-lg transition-shadow"
             >
               <div
                 className="w-12 h-12 rounded-2xl flex items-center justify-center"
