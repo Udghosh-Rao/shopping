@@ -23,7 +23,7 @@ interface Order {
 function ProfileContent() {
   const { data: session } = useSession();
   const searchParams = useSearchParams();
-  const tabParam = searchParams.get('tab');
+  const tabParam = searchParams?.get('tab') || null;
 
   const [activeTab, setActiveTab] = useState(tabParam || 'profile');
   const [orders, setOrders] = useState<Order[]>([]);

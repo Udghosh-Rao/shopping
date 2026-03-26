@@ -15,7 +15,7 @@ const tabs = [
 export default function MobileNav() {
   const pathname = usePathname();
   const { totalItems } = useCart();
-  const isAdmin = pathname.startsWith("/admin");
+  const isAdmin = pathname?.startsWith("/admin") || false;
 
   if (isAdmin) return null;
 
@@ -23,7 +23,7 @@ export default function MobileNav() {
     <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 z-40 md:hidden">
       <div className="grid grid-cols-5 h-16">
         {tabs.map(({ icon: Icon, label, href }) => {
-          const active = href === "/" ? pathname === "/" : pathname.startsWith(href.split("?")[0]);
+          const active = href === "/" ? pathname === "/" : pathname?.startsWith(href.split("?")[0]) || false;
           return (
             <Link key={label} href={href} className="relative flex flex-col items-center justify-center gap-1">
               {active && <motion.div layoutId="mobileNavBg" className="absolute top-1 w-10 h-10 bg-[#E63946]/10 rounded-2xl" />}

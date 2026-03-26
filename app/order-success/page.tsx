@@ -9,7 +9,7 @@ import { useCart } from "@/lib/cartStore";
 function OrderSuccessContent() {
   const { clearCart } = useCart();
   const searchParams = useSearchParams();
-  const orderId = searchParams.get('orderId');
+  const orderId = searchParams?.get('orderId') || null;
   const [isValidOrder, setIsValidOrder] = useState<boolean | null>(null);
 
   useEffect(() => {

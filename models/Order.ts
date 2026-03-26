@@ -29,6 +29,8 @@ export interface IOrder extends Document {
   orderStatus: 'Processing' | 'Shipped' | 'Delivered' | 'Cancelled';
   razorpayOrderId?: string;
   razorpayPaymentId?: string;
+  isCOD?: boolean;
+  awbNumber?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -71,6 +73,8 @@ const OrderSchema = new Schema<IOrder>(
     },
     razorpayOrderId: { type: String },
     razorpayPaymentId: { type: String },
+    isCOD: { type: Boolean },
+    awbNumber: { type: String },
   },
   { timestamps: true }
 );
