@@ -3,10 +3,9 @@ import MarqueeBanner from "@/components/store/MarqueeBanner";
 import NewArrivals from "@/components/store/NewArrivals";
 import FeaturedProducts from "@/components/store/FeaturedProducts";
 import WhyChooseUs from "@/components/store/WhyChooseUs";
-import ReviewsSection from "@/components/store/ReviewsSection";
 import OfferBanner from "@/components/store/OfferBanner";
 import AnimatedCounter from "@/components/ui/AnimatedCounter";
-import Lookbook from "@/components/store/Lookbook";
+import RecentlyViewed from "@/components/store/RecentlyViewed";
 
 export default function HomePage() {
   return (
@@ -34,9 +33,8 @@ export default function HomePage() {
       <NewArrivals />
       <OfferBanner />
       <FeaturedProducts />
+      <RecentlyViewed />
       <WhyChooseUs />
-      <ReviewsSection />
-      <Lookbook />
     </div>
   );
 }

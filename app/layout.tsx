@@ -7,9 +7,7 @@ import Footer from "@/components/store/Footer";
 import MobileNav from "@/components/store/MobileNav";
 import CartSidebar from "@/components/store/CartSidebar";
 import WhatsAppButton from "@/components/store/WhatsAppButton";
-import PageLoader from "@/components/ui/PageLoader";
 import ScrollProgress from "@/components/ui/ScrollProgress";
-import CustomCursor from "@/components/ui/CustomCursor";
 import PullRefresh from "@/components/ui/PullRefresh";
 import { Toaster } from "react-hot-toast";
 
@@ -36,14 +34,13 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} h-full antialiased`}
-      suppressHydrationWarning
-    >
+        className={`${inter.variable} h-full antialiased`}
+        suppressHydrationWarning
+        data-scroll-behavior="smooth"
+      >
       <body className="min-h-full flex flex-col">
         <Providers>
-          <PageLoader />
           <ScrollProgress />
-          <CustomCursor />
           <PullRefresh />
           <Navbar />
           <main className="flex-1">{children}</main>
