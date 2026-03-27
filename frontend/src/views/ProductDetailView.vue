@@ -54,7 +54,7 @@
           <!-- Animated Price -->
           <div class="text-4xl md:text-5xl font-display font-bold text-neon-orange mb-8 flex items-end gap-3">
             <span>$<span ref="priceEl">{{ animatedPrice }}</span></span>
-            <span class="text-xl text-gray-600 line-through mb-1">${{ (product.price * 1.4).toFixed(2) }}</span>
+            <span class="text-xl text-gray-600 line-through mb-1">₹{{ (product.price * 1.4).toFixed(2) }}</span>
           </div>
 
           <p class="text-gray-400 text-lg leading-relaxed mb-10 font-medium max-w-lg">
@@ -109,7 +109,7 @@
               :style="{ transform: magneticTransform }"
             >
               <span class="relative z-10 block pointer-events-none transition-transform duration-300 w-full" :style="{ transform: magneticTextTransform }">
-                <span v-if="cartStatus === 'idle'">ADD TO CART — ${{ (product.price * quantity).toFixed(2) }}</span>
+                <span v-if="cartStatus === 'idle'">ADD TO CART — ₹{{ lineTotal.toFixed(2) }}</span>
                 <span v-if="cartStatus === 'loading'" class="flex items-center justify-center h-full"><span class="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></span></span>
                 <span v-if="cartStatus === 'success'" class="anim-bounceIn flex items-center justify-center gap-2">✓ ADDED TO CART</span>
               </span>
@@ -150,7 +150,7 @@
         <div class="glass-light dark:glass-card !bg-black/80 backdrop-blur-xl border border-white/20 flex items-center justify-between p-4 shadow-[0_-10px_50px_rgba(0,0,0,0.8)] rounded-2xl">
           <div>
             <div class="font-bold text-sm line-clamp-1 uppercase tracking-widest">{{ product.name }}</div>
-            <div class="text-neon-orange font-bold font-display text-xl">${{ product.price }}</div>
+            <div class="text-neon-orange font-bold font-display text-xl">₹{{ product.price }}</div>
           </div>
           <button class="btn-glow-orange py-3 px-6 text-sm whitespace-nowrap" @click="toggleCart(true)">
             VIEW CART
@@ -162,16 +162,18 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, nextTick } from 'vue'
+import { computed, ref, onMounted, onUnmounted, nextTick } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
-import { addToCart, toggleCart } from '../composables/useCart'
+import { toggleCart } from '../composables/useCart'
 import { useCountUp } from '../composables/useCountUp'
 import { useRipple } from '../composables/useRipple'
 import { useToast } from '../composables/useToast'
+import { useCartStore } from '../stores/cartStore'
 import api from '../services/api'
 
 const route = useRoute()
 const { showToast } = useToast()
+const cartStore = useCartStore()
 
 const product = ref({
   id: null,
@@ -186,6 +188,7 @@ const product = ref({
 const activeImage = ref('')
 const selectedSize = ref('M')
 const quantity = ref(1)
+const lineTotal = computed(() => Number(product.value.price || 0) * quantity.value)
 
 // Price Counter
 const { count: animatedPrice, startCount: sp } = useCountUp()
@@ -255,7 +258,9 @@ const handleAddToCart = (e) => {
   
   setTimeout(() => {
     cartStatus.value = 'success'
-    addToCart({ ...product.value, size: selectedSize.value, quantity: quantity.value })
+    for (let i = 0; i < quantity.value; i += 1) {
+      cartStore.addItem(product.value, selectedSize.value, (product.value.colors && product.value.colors[0]) || null)
+    }
     setTimeout(() => {
       cartStatus.value = 'idle'
     }, 2000)

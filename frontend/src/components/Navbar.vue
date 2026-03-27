@@ -43,7 +43,7 @@
           🔍
         </button>
         <button 
-          @click="cartState.isOpen = true" 
+          @click="$router.push('/cart')" 
           class="w-10 h-10 rounded-full flex items-center justify-center bg-white/5 hover:bg-white/10 transition-colors relative group text-xl"
         >
           🛒
@@ -92,16 +92,17 @@
 
 <script setup>
 import { ref, watch, computed, onMounted, onUnmounted } from 'vue'
-import { cartState } from '../composables/useCart'
 import { RouterLink } from 'vue-router'
 import { useAuthStore } from '../stores/authStore'
+import { useCartStore } from '../stores/cartStore'
 
 const authStore = useAuthStore()
+const cartStore = useCartStore()
 const isScrolled = ref(false)
 const searchOpen = ref(false)
 
 const cartCount = computed(() => {
-  return cartState.items.reduce((sum, item) => sum + item.quantity, 0)
+  return cartStore.totalItems
 })
 
 const isAnimating = ref(false)

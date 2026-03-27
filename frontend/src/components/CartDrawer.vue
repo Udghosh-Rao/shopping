@@ -26,7 +26,7 @@
         <!-- Free Shipping Target -->
         <div class="px-6 py-4 border-b border-white/5 bg-white/5">
           <div class="flex justify-between text-xs mb-2 font-bold uppercase tracking-wider text-gray-400">
-            <span v-if="progress < 100">Add ${{ remainder }} for Free Shipping</span>
+            <span v-if="progress < 100">Add ₹{{ remainder }} for Free Shipping</span>
             <span v-else class="text-neon-green anim-heartbeat inline-block">🎉 Free Shipping Unlocked!</span>
           </div>
           <div class="w-full h-2 rounded-full bg-white/10 overflow-hidden relative">
@@ -42,8 +42,8 @@
         <div class="flex-1 overflow-y-auto p-6 flex flex-col gap-4">
           <TransitionGroup name="list">
             <div 
-              v-for="item in cart" 
-              :key="item.id"
+              v-for="(item, idx) in cart" 
+              :key="`${item.id}-${item.size || ''}-${item.color || ''}-${idx}`"
               class="flex gap-4 p-4 glass-card relative group"
             >
               <img :src="item.image" class="w-20 h-24 object-cover rounded-xl" />
@@ -55,7 +55,7 @@
                 <!-- Price & Quantity -->
                 <div class="flex justify-between items-center mt-3">
                   <div class="flip-price text-neon-orange font-bold text-lg">
-                    ${{ item.price * item.quantity }}
+                    ₹{{ item.price * item.quantity }}
                   </div>
                   <div class="flex items-center gap-2 bg-white/10 rounded-full px-2 py-1">
                     <button @click="updateEq(item, -1)" class="w-6 h-6 rounded-full hover:bg-white/20 transition-transform hover:scale-110 flex items-center justify-center">-</button>
@@ -82,9 +82,9 @@
         <div class="p-6 border-t border-white/10 bg-black/40">
           <div class="flex justify-between mb-4 text-xl font-display tracking-widest px-2">
             <span class="text-gray-400">TOTAL</span>
-            <span class="text-white">${{ total }}</span>
+            <span class="text-white">₹{{ total }}</span>
           </div>
-          <button class="w-full btn-glow-orange anim-gradient anim-glow py-4 text-lg tracking-widest relative">
+          <button @click="goToCart" class="w-full btn-glow-orange anim-gradient anim-glow py-4 text-lg tracking-widest relative">
             SECURE CHECKOUT
           </button>
         </div>
@@ -95,19 +95,31 @@
 
 <script setup>
 import { computed } from 'vue'
-import { cartState, toggleCart, removeFromCart, updateQuantity, cartTotal } from '../composables/useCart'
+import { useRouter } from 'vue-router'
+import { cartState, toggleCart } from '../composables/useCart'
+import { useCartStore } from '../stores/cartStore'
 
+const router = useRouter()
+const cartStore = useCartStore()
 const isOpen = computed(() => cartState.isOpen)
-const cart = computed(() => cartState.items)
-const total = cartTotal
+const cart = computed(() => cartStore.items)
+const total = computed(() => cartStore.totalPrice)
 
 const targetFreeShipping = 100
 const progress = computed(() => Math.min((total.value / targetFreeShipping) * 100, 100))
 const remainder = computed(() => Math.max(targetFreeShipping - total.value, 0).toFixed(2))
 
 const closeCart = () => toggleCart(false)
-const updateEq = (item, diff) => updateQuantity(item.id, diff)
-const removeItem = (item) => removeFromCart(item.id)
+const updateEq = (item, diff) => {
+  cartStore.updateQuantity(item.id, item.size, item.color, item.quantity + diff)
+}
+const removeItem = (item) => {
+  cartStore.removeItem(item.id, item.size, item.color)
+}
+const goToCart = () => {
+  toggleCart(false)
+  router.push('/cart')
+}
 </script>
 
 <style scoped>

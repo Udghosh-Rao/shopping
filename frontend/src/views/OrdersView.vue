@@ -1,106 +1,76 @@
 <template>
-  <div class="min-h-screen bg-white py-12">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-      <!-- Page Header -->
-      <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900">My Orders</h1>
-        <p class="mt-2 text-gray-600">Track and manage your orders</p>
+  <div class="min-h-screen bg-[var(--black)] relative pt-24 pb-12 overflow-hidden">
+    <!-- Animated Gradients -->
+    <div class="absolute top-0 left-0 w-[600px] h-[600px] bg-neon-purple/20 blur-[120px] rounded-full pointer-events-none mix-blend-screen -translate-y-1/2 -translate-x-1/3"></div>
+
+    <div class="max-w-6xl mx-auto px-6 relative z-10">
+      <div class="mb-12 flex items-center justify-between">
+        <div>
+          <h1 class="text-5xl font-display font-black text-white tracking-widest uppercase mb-2">MY <span class="text-neon-purple drop-shadow-[0_0_10px_rgba(139,92,246,0.5)]">DROPS</span></h1>
+          <p class="text-gray-400 font-bold tracking-widest text-sm uppercase">Track your acquired gear</p>
+        </div>
+        <router-link to="/profile" class="btn-glass hover:text-white flex items-center gap-2">
+          <span>←</span> HQ
+        </router-link>
       </div>
 
       <!-- Loading State -->
       <div v-if="loading" class="flex justify-center items-center py-20">
-        <div class="animate-spin rounded-full h-12 w-12 border-4 border-orange-500 border-t-transparent"></div>
+        <div class="w-12 h-12 border-4 border-neon-purple border-t-transparent rounded-full animate-spin shadow-[0_0_15px_rgba(139,92,246,0.5)]"></div>
       </div>
 
       <!-- Empty State -->
-      <div v-else-if="orders.length === 0" class="text-center py-20">
-        <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-          <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
-          </svg>
-        </div>
-        <h2 class="text-2xl font-semibold text-gray-900 mb-2">No Orders Yet</h2>
-        <p class="text-gray-600 mb-6">Start shopping to see your orders here</p>
-        <router-link to="/products" class="inline-block bg-orange-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-orange-700 transition-colors">
-          Browse Products
+      <div v-else-if="orders.length === 0" class="glass-card py-20 text-center flex flex-col items-center">
+        <span class="text-6xl mb-6 anim-float block">📦</span>
+        <h2 class="text-3xl font-display font-black text-white tracking-widest uppercase mb-4">NO DROPS DETECTED</h2>
+        <p class="text-gray-400 font-bold tracking-widest text-sm uppercase mb-8">Your inventory is currently empty.</p>
+        <router-link to="/products" class="btn-glow-purple">
+          BROWSE GEAR →
         </router-link>
       </div>
 
       <!-- Orders List -->
-      <div v-else class="space-y-6">
-        <div v-for="order in orders" :key="order.id" class="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
+      <div v-else class="space-y-6 stagger">
+        <div v-for="(order, index) in orders" :key="order.id" class="glass-card overflow-hidden group reveal visible transition-all" :style="{ transitionDelay: `${index * 100}ms` }">
           <!-- Order Header -->
-          <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
-            <div class="flex flex-wrap items-center justify-between gap-4">
-              <div>
-                <p class="text-sm text-gray-600">Order ID</p>
-                <p class="text-lg font-semibold text-gray-900">#{{ order.id }}</p>
-              </div>
-              <div>
-                <p class="text-sm text-gray-600">Order Date</p>
-                <p class="text-lg font-medium text-gray-900">{{ formatDate(order.created_at) }}</p>
-              </div>
-              <div>
-                <p class="text-sm text-gray-600">Total Amount</p>
-                <p class="text-lg font-bold text-orange-600">₹{{ order.total_amount.toLocaleString() }}</p>
-              </div>
-              <div>
-                <span 
-                  class="inline-block px-4 py-2 rounded-full text-sm font-semibold"
-                  :class="getStatusClass(order.status)"
-                >
-                  {{ order.status }}
-                </span>
-              </div>
+          <div class="bg-white/5 px-8 py-5 border-b border-white/10 flex flex-wrap items-center justify-between gap-6">
+            <div>
+              <p class="text-[10px] font-bold text-gray-500 tracking-widest mb-1">ORDER ID</p>
+              <p class="text-lg font-bold text-white tracking-wider">#{{ order.id }}</p>
+            </div>
+            <div>
+              <p class="text-[10px] font-bold text-gray-500 tracking-widest mb-1">DATE SECURED</p>
+              <p class="text-sm font-bold text-white tracking-wider">{{ formatDate(order.created_at) }}</p>
+            </div>
+            <div>
+              <p class="text-[10px] font-bold text-gray-500 tracking-widest mb-1">TOTAL VALUE</p>
+               <p class="text-xl font-black text-neon-orange font-display tracking-widest">₹{{ order.total }}</p>
+            </div>
+            <div>
+              <span class="badge-neon px-4 py-2" :class="getStatusClass(order.status)">
+                {{ order.status }}
+              </span>
             </div>
           </div>
 
           <!-- Order Items -->
-          <div class="px-6 py-4">
-            <div class="space-y-4">
-              <div v-for="item in order.items" :key="item.id" class="flex gap-4 items-start">
-                <div class="w-20 h-20 bg-gray-100 rounded-lg flex-shrink-0 overflow-hidden">
-                  <img 
-                    v-if="item.product?.image_url" 
-                    :src="item.product.image_url" 
-                    :alt="item.product.name"
-                    class="w-full h-full object-cover"
-                  />
-                  <div v-else class="w-full h-full flex items-center justify-center text-gray-400">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                    </svg>
-                  </div>
+          <div class="px-8 py-6 bg-black/40">
+            <div class="space-y-6">
+              <div v-for="item in order.items" :key="item.id" class="flex gap-6 items-center">
+                <div class="w-24 h-24 bg-white/5 rounded-2xl border border-white/10 overflow-hidden relative group-hover:border-neon-purple/50 transition-colors flex-shrink-0">
+                  <img v-if="item.product?.image_url" :src="item.product.image_url" class="w-full h-full object-cover mix-blend-overlay opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500" />
+                  <div v-else class="w-full h-full flex items-center justify-center text-4xl">👕</div>
                 </div>
                 <div class="flex-1">
-                  <h3 class="font-semibold text-gray-900">{{ item.product?.name || 'Product' }}</h3>
-                  <p class="text-sm text-gray-600 mt-1">
-                    Quantity: {{ item.quantity }} 
-                    <span v-if="item.size"> | Size: {{ item.size }}</span>
-                    <span v-if="item.color"> | Color: {{ item.color }}</span>
-                  </p>
-                  <p class="text-sm font-semibold text-orange-600 mt-2">₹{{ (item.price * item.quantity).toLocaleString() }}</p>
+                  <h3 class="font-bold text-white text-lg tracking-wider mb-2 uppercase">{{ item.product?.name || 'UNKNOWN GEAR' }}</h3>
+                  <div class="flex items-center gap-4 text-xs font-bold text-gray-400 tracking-widest">
+                    <span>QTY: {{ item.quantity }}</span>
+                    <span v-if="item.size">SIZE: {{ item.size }}</span>
+                    <span v-if="item.color">COLOR: {{ item.color }}</span>
+                  </div>
+                  <p class="text-sm font-black text-neon-orange mt-2 tracking-widest">₹{{ item.price * item.quantity }}</p>
                 </div>
               </div>
-            </div>
-          </div>
-
-          <!-- Order Footer -->
-          <div class="bg-gray-50 px-6 py-4 border-t border-gray-200">
-            <div class="flex justify-between items-center">
-              <div v-if="order.delivery_address" class="text-sm text-gray-600">
-                <p class="font-semibold text-gray-900">Delivery Address:</p>
-                <p>{{ order.delivery_address }}</p>
-              </div>
-              <router-link 
-                :to="`/order/${order.id}`" 
-                class="text-orange-600 hover:text-orange-700 font-semibold text-sm flex items-center"
-              >
-                View Details
-                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                </svg>
-              </router-link>
             </div>
           </div>
         </div>
@@ -112,9 +82,9 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import api from '../services/api'
-import { useToastStore } from '../stores/toastStore'
+import { useToast } from '../composables/useToast'
 
-const { showToast } = useToastStore()
+const { showToast } = useToast()
 const orders = ref([])
 const loading = ref(true)
 
@@ -123,30 +93,23 @@ onMounted(async () => {
     const response = await api.get('/orders')
     orders.value = response.data
   } catch (error) {
-    console.error('Error fetching orders:', error)
-    showToast(error.response?.data?.error || 'Failed to load orders', 'error')
+    showToast('Failed to connect to Order Database.', 'error')
   } finally {
     loading.value = false
   }
 })
 
 const formatDate = (dateString) => {
-  const date = new Date(dateString)
-  return date.toLocaleDateString('en-US', { 
-    year: 'numeric', 
-    month: 'short', 
-    day: 'numeric' 
-  })
+  return new Date(dateString).toLocaleDateString('en-US', { 
+    year: 'numeric', month: 'long', day: 'numeric' 
+  }).toUpperCase()
 }
 
 const getStatusClass = (status) => {
-  const statusClasses = {
-    'pending': 'bg-yellow-100 text-yellow-800',
-    'processing': 'bg-blue-100 text-blue-800',
-    'shipped': 'bg-purple-100 text-purple-800',
-    'delivered': 'bg-green-100 text-green-800',
-    'cancelled': 'bg-red-100 text-red-800'
-  }
-  return statusClasses[status?.toLowerCase()] || 'bg-gray-100 text-gray-800'
+  const stat = status?.toLowerCase()
+  if (stat === 'pending') return 'badge-hot'
+  if (stat === 'delivered') return 'badge-new'
+  if (stat === 'shipped') return 'badge-limited'
+  return 'badge-sale'
 }
 </script>

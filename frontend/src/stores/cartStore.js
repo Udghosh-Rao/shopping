@@ -40,19 +40,26 @@ export const useCartStore = defineStore('cart', {
         item => !(item.id === id && item.size === size && item.color === color)
       )
       this.saveToLocalStorage()
+      this.syncWithBackend()
     },
     updateQuantity(id, size, color, newQty) {
       const item = this.items.find(
         item => item.id === id && item.size === size && item.color === color
       )
       if (item) {
+        if (newQty < 1) {
+          this.removeItem(id, size, color)
+          return
+        }
         item.quantity = newQty
         this.saveToLocalStorage()
+        this.syncWithBackend()
       }
     },
     clearCart() {
       this.items = []
       this.saveToLocalStorage()
+      this.syncWithBackend()
     },
     saveToLocalStorage() {
       localStorage.setItem('cart', JSON.stringify(this.items))
@@ -62,7 +69,7 @@ export const useCartStore = defineStore('cart', {
       if (!authStore.isLoggedIn) return
 
       try {
-        // Sync cart items to backend
+        await api.delete('/cart/clear')
         for (const item of this.items) {
           await api.post('/cart/add', {
             product_id: item.id,

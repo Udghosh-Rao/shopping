@@ -40,7 +40,7 @@
     <div class="flex flex-col flex-1">
       <div class="flex justify-between items-start gap-4 mb-1">
         <h3 class="font-bold text-sm text-white group-hover:text-neon-orange transition-colors leading-tight line-clamp-2">{{ product.name }}</h3>
-        <p class="font-display tracking-widest text-lg text-white">${{ product.price }}</p>
+        <p class="font-display tracking-widest text-lg text-white">₹{{ product.price }}</p>
       </div>
       <p class="text-xs font-bold text-gray-500 tracking-widest uppercase">{{ product.category || 'Apparel' }}</p>
       
@@ -59,16 +59,19 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { addToCart } from '../composables/useCart'
+import { computed, ref } from 'vue'
+import { useCartStore } from '../stores/cartStore'
+import { useWishlistStore } from '../stores/wishlistStore'
 
 const props = defineProps({
   product: { type: Object, required: true },
   index: { type: Number, default: 0 }
 })
 
-const isWishlisted = ref(false)
-const toggleWishlist = () => isWishlisted.value = !isWishlisted.value
+const cartStore = useCartStore()
+const wishlistStore = useWishlistStore()
+const isWishlisted = computed(() => wishlistStore.isWishlisted(props.product.id))
+const toggleWishlist = () => wishlistStore.toggle(props.product.id)
 
 const cartStatus = ref('idle')
 
@@ -78,7 +81,7 @@ const handleAddToCart = (e) => {
   
   setTimeout(() => {
     cartStatus.value = 'success'
-    addToCart({ ...props.product, size: props.product.size || 'M', quantity: 1 })
+    cartStore.addItem(props.product, (props.product.sizes && props.product.sizes[0]) || 'M', (props.product.colors && props.product.colors[0]) || null)
     
     setTimeout(() => {
       cartStatus.value = 'idle'

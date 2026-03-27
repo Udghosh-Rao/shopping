@@ -131,7 +131,7 @@ const totalPages = ref(1)
 const searchQuery = ref(route.query.search || '')
 
 // Modified categories to match premium streetwear aesthetic
-const categories = ['Outerwear', 'Hoodies', 'Sweaters', 'T-Shirts', 'Pants', 'Sneakers', 'Accessories']
+const categories = ['T-Shirts', 'Shirts', 'Joggers', 'Shorts', 'Hoodies', 'Jackets', 'Sneakers']
 
 const fetchProducts = async () => {
   loading.value = true

@@ -13,11 +13,23 @@ app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["JWT_SECRET_KEY"] = "change-me-in-production-f8b23e4a9d1c"
 
-CORS(app, origins=["http://localhost:5173"])
+CORS(app, origins=["http://localhost:5173", "http://127.0.0.1:5173"])
 db.init_app(app)
 jwt = JWTManager(app)
 
 APPAREL_CATEGORIES = ["T-Shirts", "Shirts", "Joggers", "Shorts", "Hoodies", "Jackets", "Sneakers"]
+ALLOWED_PAYMENT_METHODS = {"COD", "UPI", "Card"}
+
+
+def _json_body():
+    return request.get_json(silent=True) or {}
+
+
+def _parse_int(value, default=None):
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return default
 
 
 @app.after_request
@@ -43,11 +55,11 @@ def server_error(_e):
 
 @app.post("/api/auth/register")
 def register():
-    data = request.json
-    username = data.get("username")
-    email = data.get("email")
+    data = _json_body()
+    username = (data.get("username") or "").strip()
+    email = (data.get("email") or "").strip().lower()
     password = data.get("password")
-    phone = data.get("phone")
+    phone = (data.get("phone") or "").strip() or None
 
     if not username or not email or not password:
         return jsonify({"error": "Missing required fields"}), 400
@@ -66,8 +78,8 @@ def register():
 
 @app.post("/api/auth/login")
 def login():
-    data = request.json
-    email = data.get("email")
+    data = _json_body()
+    email = (data.get("email") or "").strip().lower()
     password = data.get("password")
 
     if not email or not password:
@@ -105,8 +117,9 @@ def get_products():
     max_price = request.args.get("max_price", type=float)
     sort = request.args.get("sort", "newest")
     featured = request.args.get("featured")
-    page = request.args.get("page", 1, type=int)
-    per_page = request.args.get("per_page", 12, type=int)
+    page = max(request.args.get("page", 1, type=int) or 1, 1)
+    per_page = request.args.get("per_page", 12, type=int) or 12
+    per_page = min(max(per_page, 1), 50)
 
     query = Product.query.filter(Product.category.in_(APPAREL_CATEGORIES))
 
@@ -286,23 +299,29 @@ def get_cart():
 @jwt_required()
 def add_to_cart():
     user_id = int(get_jwt_identity())
-    data = request.json
+    data = _json_body()
     product_id = data.get("product_id")
-    quantity = data.get("quantity", 1)
+    quantity = _parse_int(data.get("quantity", 1), default=1)
     size = data.get("size")
     color = data.get("color")
 
-    if not product_id:
-        return jsonify({"error": "Product ID required"}), 400
+    if not product_id or quantity is None or quantity < 1:
+        return jsonify({"error": "Valid product ID and quantity are required"}), 400
 
-    product = Product.query.get(product_id)
+    product = Product.query.filter(
+        Product.id == product_id, Product.category.in_(APPAREL_CATEGORIES)
+    ).first()
     if not product:
         return jsonify({"error": "Product not found"}), 404
 
     existing = CartItem.query.filter_by(user_id=user_id, product_id=product_id, size=size, color=color).first()
+    requested_quantity = quantity + (existing.quantity if existing else 0)
+
+    if requested_quantity > product.stock:
+        return jsonify({"error": "Requested quantity exceeds available stock"}), 400
 
     if existing:
-        existing.quantity += quantity
+        existing.quantity = requested_quantity
         db.session.commit()
         return jsonify(existing.to_dict()), 200
 
@@ -316,8 +335,8 @@ def add_to_cart():
 @jwt_required()
 def update_cart_item(item_id):
     user_id = int(get_jwt_identity())
-    data = request.json
-    quantity = data.get("quantity")
+    data = _json_body()
+    quantity = _parse_int(data.get("quantity"))
 
     if quantity is None or quantity < 1:
         return jsonify({"error": "Invalid quantity"}), 400
@@ -325,6 +344,8 @@ def update_cart_item(item_id):
     cart_item = CartItem.query.filter_by(id=item_id, user_id=user_id).first()
     if not cart_item:
         return jsonify({"error": "Cart item not found"}), 404
+    if quantity > cart_item.product.stock:
+        return jsonify({"error": "Requested quantity exceeds available stock"}), 400
 
     cart_item.quantity = quantity
     db.session.commit()
@@ -369,13 +390,15 @@ def get_wishlist():
 @jwt_required()
 def add_to_wishlist():
     user_id = int(get_jwt_identity())
-    data = request.json
+    data = _json_body()
     product_id = data.get("product_id")
 
     if not product_id:
         return jsonify({"error": "Product ID required"}), 400
 
-    product = Product.query.get(product_id)
+    product = Product.query.filter(
+        Product.id == product_id, Product.category.in_(APPAREL_CATEGORIES)
+    ).first()
     if not product:
         return jsonify({"error": "Product not found"}), 404
 
@@ -410,9 +433,12 @@ def remove_from_wishlist(item_id):
 @jwt_required()
 def checkout():
     user_id = int(get_jwt_identity())
-    data = request.json
+    data = _json_body()
     address_data = data.get("address")
     payment_method = data.get("payment_method", "COD")
+
+    if payment_method not in ALLOWED_PAYMENT_METHODS:
+        return jsonify({"error": "Invalid payment method"}), 400
 
     cart_items = CartItem.query.filter_by(user_id=user_id).all()
     if not cart_items:
@@ -421,30 +447,44 @@ def checkout():
     address_id = None
     if address_data:
         if isinstance(address_data, int):
-            address_id = address_data
+            address = Address.query.filter_by(id=address_data, user_id=user_id).first()
+            if not address:
+                return jsonify({"error": "Address not found"}), 404
+            address_id = address.id
         else:
+            required_fields = ["full_name", "phone", "line1", "city", "state", "pincode"]
+            if any(not str(address_data.get(field, "")).strip() for field in required_fields):
+                return jsonify({"error": "Incomplete address details"}), 400
             address = Address(
                 user_id=user_id,
-                full_name=address_data.get("full_name"),
-                phone=address_data.get("phone"),
-                line1=address_data.get("line1"),
-                line2=address_data.get("line2"),
-                city=address_data.get("city"),
-                state=address_data.get("state"),
-                pincode=address_data.get("pincode"),
+                full_name=str(address_data.get("full_name")).strip(),
+                phone=str(address_data.get("phone")).strip(),
+                line1=str(address_data.get("line1")).strip(),
+                line2=(address_data.get("line2") or "").strip() or None,
+                city=str(address_data.get("city")).strip(),
+                state=str(address_data.get("state")).strip(),
+                pincode=str(address_data.get("pincode")).strip(),
                 is_default=address_data.get("is_default", False),
             )
             db.session.add(address)
             db.session.flush()
             address_id = address.id
 
-    total = sum(item.product.price * item.quantity for item in cart_items)
+    total = 0.0
+    for item in cart_items:
+        if not item.product:
+            return jsonify({"error": f"Product not found for cart item {item.id}"}), 404
+        if item.quantity > item.product.stock:
+            return jsonify({"error": f"Insufficient stock for {item.product.name}"}), 400
+        total += item.product.price * item.quantity
 
     order = Order(user_id=user_id, address_id=address_id, total=total, payment_method=payment_method, status="pending")
     db.session.add(order)
     db.session.flush()
 
     for cart_item in cart_items:
+        cart_item.product.stock = max(cart_item.product.stock - cart_item.quantity, 0)
+        cart_item.product.in_stock = cart_item.product.stock > 0
         order_item = OrderItem(
             order_id=order.id,
             product_id=cart_item.product_id,
@@ -494,17 +534,20 @@ def get_addresses():
 @jwt_required()
 def add_address():
     user_id = int(get_jwt_identity())
-    data = request.json
+    data = _json_body()
+    required_fields = ["full_name", "phone", "line1", "city", "state", "pincode"]
+    if any(not str(data.get(field, "")).strip() for field in required_fields):
+        return jsonify({"error": "Missing required address fields"}), 400
 
     address = Address(
         user_id=user_id,
-        full_name=data.get("full_name"),
-        phone=data.get("phone"),
-        line1=data.get("line1"),
-        line2=data.get("line2"),
-        city=data.get("city"),
-        state=data.get("state"),
-        pincode=data.get("pincode"),
+        full_name=str(data.get("full_name")).strip(),
+        phone=str(data.get("phone")).strip(),
+        line1=str(data.get("line1")).strip(),
+        line2=(data.get("line2") or "").strip() or None,
+        city=str(data.get("city")).strip(),
+        state=str(data.get("state")).strip(),
+        pincode=str(data.get("pincode")).strip(),
         is_default=data.get("is_default", False),
     )
     db.session.add(address)
@@ -520,14 +563,14 @@ def update_address(address_id):
     if not address:
         return jsonify({"error": "Address not found"}), 404
 
-    data = request.json
-    address.full_name = data.get("full_name", address.full_name)
-    address.phone = data.get("phone", address.phone)
-    address.line1 = data.get("line1", address.line1)
-    address.line2 = data.get("line2", address.line2)
-    address.city = data.get("city", address.city)
-    address.state = data.get("state", address.state)
-    address.pincode = data.get("pincode", address.pincode)
+    data = _json_body()
+    address.full_name = str(data.get("full_name", address.full_name)).strip()
+    address.phone = str(data.get("phone", address.phone)).strip()
+    address.line1 = str(data.get("line1", address.line1)).strip()
+    address.line2 = (data.get("line2", address.line2) or "").strip() or None
+    address.city = str(data.get("city", address.city)).strip()
+    address.state = str(data.get("state", address.state)).strip()
+    address.pincode = str(data.get("pincode", address.pincode)).strip()
     address.is_default = data.get("is_default", address.is_default)
 
     db.session.commit()
@@ -553,4 +596,4 @@ with app.app_context():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5001, debug=True)
+    app.run(host="0.0.0.0", port=5005, debug=True)
