@@ -115,15 +115,19 @@ const handleLogin = async (e) => {
       password: password.value
     })
     
-    const { token, username, email: returnedEmail } = response.data
+    const { token, username, email: returnedEmail, role } = response.data
     
-    authStore.login(token, username, returnedEmail)
+    authStore.login(token, username, returnedEmail, role || 'user')
     
     status.value = 'success'
     showToast(`Welcome back, ${username}!`, 'success')
     
     setTimeout(() => {
-      router.push(route.query.redirect || '/profile')
+      if (route.query.redirect) {
+        router.push(route.query.redirect)
+      } else {
+        router.push((role || 'user') === 'admin' ? '/admin' : '/profile')
+      }
     }, 1000)
   } catch (error) {
     status.value = 'idle'

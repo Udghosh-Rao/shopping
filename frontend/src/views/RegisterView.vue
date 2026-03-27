@@ -120,9 +120,9 @@ const handleRegister = async (e) => {
       password: password.value
     })
     
-    const { token, username: returnedUsername, email: returnedEmail } = response.data
+    const { token, username: returnedUsername, email: returnedEmail, role } = response.data
     
-    authStore.login(token, returnedUsername, returnedEmail)
+    authStore.login(token, returnedUsername, returnedEmail, role || 'user')
     
     status.value = 'success'
     showToast('Account created successfully! Welcome to ShopZone', 'success')

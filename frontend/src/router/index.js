@@ -13,6 +13,10 @@ const RegisterView = () => import('../views/RegisterView.vue')
 const WishlistView = () => import('../views/WishlistView.vue')
 const ProfileView = () => import('../views/ProfileView.vue')
 const OrdersView = () => import('../views/OrdersView.vue')
+const AdminDashboardView = () => import('../views/admin/AdminDashboardView.vue')
+const AdminProductsView = () => import('../views/admin/AdminProductsView.vue')
+const AdminOrdersView = () => import('../views/admin/AdminOrdersView.vue')
+const AdminUsersView = () => import('../views/admin/AdminUsersView.vue')
 const NotFoundView = () => import('../views/NotFoundView.vue')
 
 const routes = [
@@ -67,6 +71,30 @@ const routes = [
     meta: { requiresAuth: true }
   },
   {
+    path: '/admin',
+    name: 'admin-dashboard',
+    component: AdminDashboardView,
+    meta: { requiresAuth: true, requiresAdmin: true }
+  },
+  {
+    path: '/admin/products',
+    name: 'admin-products',
+    component: AdminProductsView,
+    meta: { requiresAuth: true, requiresAdmin: true }
+  },
+  {
+    path: '/admin/orders',
+    name: 'admin-orders',
+    component: AdminOrdersView,
+    meta: { requiresAuth: true, requiresAdmin: true }
+  },
+  {
+    path: '/admin/users',
+    name: 'admin-users',
+    component: AdminUsersView,
+    meta: { requiresAuth: true, requiresAdmin: true }
+  },
+  {
     path: '/login',
     name: 'login',
     component: LoginView,
@@ -109,6 +137,10 @@ router.beforeEach((to, from, next) => {
 
   // Guest only routes (redirect to profile if already logged in)
   if (to.meta.guestOnly && authStore.isLoggedIn) {
+    return next({ name: 'profile' })
+  }
+
+  if (to.meta.requiresAdmin && !authStore.isAdmin) {
     return next({ name: 'profile' })
   }
 

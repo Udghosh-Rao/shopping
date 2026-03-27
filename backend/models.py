@@ -15,6 +15,8 @@ class User(db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False, index=True)
     password_hash = db.Column(db.String(255), nullable=False)
     phone = db.Column(db.String(15), nullable=True)
+    role = db.Column(db.String(20), nullable=False, default="user", index=True)
+    is_active = db.Column(db.Boolean, nullable=False, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
 
     cart_items = db.relationship("CartItem", backref="user", lazy=True, cascade="all, delete-orphan")
@@ -34,6 +36,8 @@ class User(db.Model):
             "username": self.username,
             "email": self.email,
             "phone": self.phone,
+            "role": self.role,
+            "is_active": self.is_active,
             "created_at": self.created_at.isoformat(),
         }
 

@@ -82,6 +82,19 @@
             </div>
         </div>
 
+        <router-link v-if="authStore.isAdmin" to="/admin" class="glass-card p-8 reveal visible group cursor-pointer flex flex-col justify-between">
+            <div class="flex items-center mb-6">
+              <div class="w-14 h-14 bg-white/10 rounded-full flex items-center justify-center border border-white/20 group-hover:shadow-[0_0_15px_rgba(255,107,0,0.3)] text-neon-orange transition-all">
+                <span class="text-2xl">🛠️</span>
+              </div>
+              <h2 class="ml-4 text-2xl font-display font-bold text-white tracking-widest">ADMIN</h2>
+            </div>
+            <p class="text-gray-400 font-bold text-sm tracking-widest mb-6">Manage products, orders, and users.</p>
+            <div class="mt-auto flex items-center text-neon-orange font-black tracking-widest uppercase text-xs">
+              <span>OPEN CONSOLE</span><span class="ml-2 group-hover:translate-x-2 transition-transform">→</span>
+            </div>
+        </router-link>
+
         <!-- Logout Card -->
         <div @click="handleLogout" class="glass-card p-8 reveal visible group cursor-pointer hover:border-red-500/50 hover:bg-red-500/10 transition-all flex flex-col justify-between">
           <div class="flex items-center mb-6">
