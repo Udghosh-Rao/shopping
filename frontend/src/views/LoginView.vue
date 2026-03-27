@@ -123,7 +123,7 @@ const handleLogin = async (e) => {
     showToast(`Welcome back, ${username}!`, 'success')
     
     setTimeout(() => {
-      router.push(route.query.redirect || '/')
+      router.push(route.query.redirect || '/profile')
     }, 1000)
   } catch (error) {
     status.value = 'idle'

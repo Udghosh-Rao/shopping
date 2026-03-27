@@ -11,6 +11,8 @@ const OrderSuccessView = () => import('../views/OrderSuccessView.vue')
 const LoginView = () => import('../views/LoginView.vue')
 const RegisterView = () => import('../views/RegisterView.vue')
 const WishlistView = () => import('../views/WishlistView.vue')
+const ProfileView = () => import('../views/ProfileView.vue')
+const OrdersView = () => import('../views/OrdersView.vue')
 const NotFoundView = () => import('../views/NotFoundView.vue')
 
 const routes = [
@@ -50,6 +52,18 @@ const routes = [
     path: '/wishlist',
     name: 'wishlist',
     component: WishlistView,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/profile',
+    name: 'profile',
+    component: ProfileView,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/orders',
+    name: 'orders',
+    component: OrdersView,
     meta: { requiresAuth: true }
   },
   {
@@ -93,9 +107,9 @@ router.beforeEach((to, from, next) => {
     return next({ name: 'login', query: { redirect: to.fullPath } })
   }
 
-  // Guest only routes (redirect to home if already logged in)
+  // Guest only routes (redirect to profile if already logged in)
   if (to.meta.guestOnly && authStore.isLoggedIn) {
-    return next({ name: 'home' })
+    return next({ name: 'profile' })
   }
 
   next()

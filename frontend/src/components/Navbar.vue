@@ -55,8 +55,11 @@
             {{ cartCount }}
           </span>
         </button>
-        <RouterLink to="/login" class="hidden md:flex btn-glass hover:text-white !py-2 !px-6 text-xs items-center justify-center">
+        <RouterLink to="/login" v-if="!authStore.isLoggedIn" class="hidden md:flex btn-glass hover:text-white !py-2 !px-6 text-xs items-center justify-center">
           SIGN IN
+        </RouterLink>
+        <RouterLink to="/profile" v-else class="hidden md:flex btn-glass hover:text-white !py-2 !px-6 text-xs items-center justify-center">
+          MY ACCOUNT
         </RouterLink>
       </div>
 
@@ -91,7 +94,9 @@
 import { ref, watch, computed, onMounted, onUnmounted } from 'vue'
 import { cartState } from '../composables/useCart'
 import { RouterLink } from 'vue-router'
+import { useAuthStore } from '../stores/authStore'
 
+const authStore = useAuthStore()
 const isScrolled = ref(false)
 const searchOpen = ref(false)
 
