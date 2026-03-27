@@ -29,22 +29,32 @@
         >
           Shop
         </RouterLink>
-        <a href="#" class="nav-link relative font-bold text-xs tracking-widest uppercase text-gray-300 hover:text-white transition-colors">
-          Categories
-        </a>
+        <RouterLink to="/products?badge=SALE" class="nav-link relative font-bold text-xs tracking-widest uppercase text-red-400 hover:text-red-300 transition-colors">
+          Sale 🔥
+        </RouterLink>
       </nav>
 
       <!-- Actions -->
-      <div class="flex items-center gap-4">
+      <div class="flex items-center gap-2">
         <button 
-          @click="toggleSearch" 
-          class="w-10 h-10 rounded-full flex items-center justify-center bg-white/5 hover:bg-white/10 transition-colors text-xl"
+          @click="searchOpen = true"
+          class="w-10 h-10 rounded-full flex items-center justify-center bg-white/5 hover:bg-white/10 transition-colors text-lg"
         >
           🔍
         </button>
+        <RouterLink 
+          to="/wishlist"
+          class="w-10 h-10 rounded-full flex items-center justify-center bg-white/5 hover:bg-white/10 transition-colors relative text-lg"
+        >
+          🤍
+          <span v-if="wishlistCount > 0"
+            class="absolute -top-1 -right-1 bg-[#ff2d78] text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full">
+            {{ wishlistCount }}
+          </span>
+        </RouterLink>
         <button 
-          @click="$router.push('/cart')" 
-          class="w-10 h-10 rounded-full flex items-center justify-center bg-white/5 hover:bg-white/10 transition-colors relative group text-xl"
+          @click="toggleCart(true)" 
+          class="w-10 h-10 rounded-full flex items-center justify-center bg-white/5 hover:bg-white/10 transition-colors relative group text-lg"
         >
           🛒
           <span 
@@ -61,28 +71,55 @@
         <RouterLink to="/profile" v-else class="hidden md:flex btn-glass hover:text-white !py-2 !px-6 text-xs items-center justify-center">
           MY ACCOUNT
         </RouterLink>
+        <button 
+          @click="mobileOpen = !mobileOpen"
+          class="md:hidden w-10 h-10 rounded-full flex items-center justify-center bg-white/5 hover:bg-white/10 transition-colors"
+        >
+          <div class="flex flex-col gap-1.5 w-4">
+            <span class="block h-0.5 bg-white transition-all duration-300" :class="mobileOpen ? 'rotate-45 translate-y-2' : ''" />
+            <span class="block h-0.5 bg-white transition-all duration-300" :class="mobileOpen ? 'opacity-0 scale-x-0' : ''" />
+            <span class="block h-0.5 bg-white transition-all duration-300" :class="mobileOpen ? '-rotate-45 -translate-y-2' : ''" />
+          </div>
+        </button>
       </div>
 
     </div>
 
+    <Transition name="slideDown">
+      <div v-if="mobileOpen" class="md:hidden glass border-t border-white/10 px-6 py-6 flex flex-col gap-4">
+        <RouterLink to="/" @click="mobileOpen = false"
+          class="font-bold text-sm tracking-widest uppercase text-gray-300 hover:text-neon-orange transition-colors">Home</RouterLink>
+        <RouterLink to="/products" @click="mobileOpen = false"
+          class="font-bold text-sm tracking-widest uppercase text-gray-300 hover:text-neon-orange transition-colors">Shop</RouterLink>
+        <RouterLink to="/wishlist" @click="mobileOpen = false"
+          class="font-bold text-sm tracking-widest uppercase text-gray-300 hover:text-neon-orange transition-colors">Wishlist</RouterLink>
+        <RouterLink to="/orders" @click="mobileOpen = false"
+          class="font-bold text-sm tracking-widest uppercase text-gray-300 hover:text-neon-orange transition-colors">My Orders</RouterLink>
+        <div class="border-t border-white/10 pt-4">
+          <RouterLink v-if="!authStore.isLoggedIn" to="/login" @click="mobileOpen = false"
+            class="btn-glow-orange w-full block text-center py-3 text-xs tracking-widest">SIGN IN</RouterLink>
+          <RouterLink v-else to="/profile" @click="mobileOpen = false"
+            class="btn-glass w-full block text-center py-3 text-xs tracking-widest">MY ACCOUNT</RouterLink>
+        </div>
+      </div>
+    </Transition>
+
     <!-- Search Overlay -->
     <Transition name="fade">
-      <div v-if="searchOpen" class="fixed inset-0 z-50 glass-card !rounded-none !border-0 flex items-center justify-center bg-black/80 backdrop-blur-xl">
-        <button @click="toggleSearch" class="absolute top-8 right-8 text-6xl font-light text-white hover:text-neon-orange transition-colors">×</button>
+      <div v-if="searchOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-xl" @click.self="closeSearch">
+        <button @click="closeSearch" class="absolute top-8 right-8 text-6xl font-light text-white hover:text-[#ff6b00] transition-colors">×</button>
         <div class="w-full max-w-4xl px-6">
-          <input 
-            type="text" 
-            placeholder="SEARCH THE FUTURE..." 
-            class="w-full bg-transparent border-b-2 border-white/20 text-6xl font-display text-white placeholder:text-white/20 outline-none pb-4 focus:border-neon-orange transition-colors"
-            autofocus
-          >
-          <div class="mt-8 flex gap-4">
+          <form @submit.prevent="doSearch">
+            <input v-model="searchQuery" type="text" placeholder="SEARCH THE FUTURE..." 
+              class="w-full bg-transparent border-b-2 border-white/20 text-5xl md:text-6xl font-display text-white placeholder:text-white/20 outline-none pb-4 focus:border-[#ff6b00] transition-colors"
+              autofocus />
+          </form>
+          <div class="mt-8 flex flex-wrap gap-3 items-center">
             <span class="text-xs font-bold text-gray-500 tracking-widest">POPULAR //</span>
-            <div class="flex gap-3">
-              <span class="badge-neon badge-hot px-3 py-1 cursor-pointer">SNEAKERS</span>
-              <span class="badge-neon badge-limited px-3 py-1 cursor-pointer">MARVEL HOODIES</span>
-              <span class="badge-neon badge-new px-3 py-1 cursor-pointer">ANIME MERCH</span>
-            </div>
+            <span v-for="tag in popularTags" :key="tag.label"
+              @click="quickSearch(tag.query)"
+              class="badge-neon px-3 py-1 cursor-pointer hover:scale-105 transition-transform"
+              :class="tag.cls">{{ tag.label }}</span>
           </div>
         </div>
       </div>
@@ -92,18 +129,32 @@
 
 <script setup>
 import { ref, watch, computed, onMounted, onUnmounted } from 'vue'
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/authStore'
 import { useCartStore } from '../stores/cartStore'
+import { useWishlistStore } from '../stores/wishlistStore'
+import { toggleCart } from '../composables/useCart'
 
+const router = useRouter()
 const authStore = useAuthStore()
 const cartStore = useCartStore()
+const wishlistStore = useWishlistStore()
 const isScrolled = ref(false)
 const searchOpen = ref(false)
+const mobileOpen = ref(false)
+const searchQuery = ref('')
 
 const cartCount = computed(() => {
   return cartStore.totalItems
 })
+const wishlistCount = computed(() => wishlistStore.items.length)
+
+const popularTags = [
+  { label: 'SNEAKERS', query: 'Sneakers', cls: 'badge-hot' },
+  { label: 'HOODIES', query: 'Hoodies', cls: 'badge-limited' },
+  { label: 'T-SHIRTS', query: 'T-Shirts', cls: 'badge-new' },
+  { label: 'JACKETS', query: 'Jackets', cls: 'badge-best' }
+]
 
 const isAnimating = ref(false)
 watch(cartCount, (newVal, oldVal) => {
@@ -113,8 +164,20 @@ watch(cartCount, (newVal, oldVal) => {
   }
 })
 
-const toggleSearch = () => {
-  searchOpen.value = !searchOpen.value
+const closeSearch = () => {
+  searchOpen.value = false
+  searchQuery.value = ''
+}
+
+const doSearch = () => {
+  if (!searchQuery.value.trim()) return
+  router.push({ path: '/products', query: { search: searchQuery.value.trim() } })
+  closeSearch()
+}
+
+const quickSearch = (query) => {
+  router.push({ path: '/products', query: { search: query } })
+  closeSearch()
 }
 
 const handleScroll = () => {
@@ -145,6 +208,9 @@ onUnmounted(() => {
 .nav-link.active::after {
   width: 100%;
 }
+
+.slideDown-enter-active, .slideDown-leave-active { transition: all 0.3s var(--ease-smooth); }
+.slideDown-enter-from, .slideDown-leave-to { opacity: 0; transform: translateY(-8px); }
 
 .fade-enter-active, .fade-leave-active { transition: opacity 0.3s ease; }
 .fade-enter-from, .fade-leave-to { opacity: 0; }

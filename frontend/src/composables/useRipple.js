@@ -1,19 +1,21 @@
-export function useRipple() {
-  function createRipple(event) {
-    const button = event.currentTarget
+export const useRipple = () => {
+  const createRipple = (event) => {
+    const el = event.currentTarget
     const circle = document.createElement('span')
-    const diameter = Math.max(button.clientWidth, button.clientHeight)
-    const radius = diameter / 2
-    const rect = button.getBoundingClientRect()
-    circle.style.width = circle.style.height = `${diameter}px`
-    circle.style.left  = `${event.clientX - rect.left  - radius}px`
-    circle.style.top   = `${event.clientY - rect.top   - radius}px`
-    circle.className = 'ripple-effect'
-    button.classList.add('ripple-container')
-    const existing = button.querySelector('.ripple-effect')
-    if (existing) existing.remove()
-    button.appendChild(circle)
+    const d = Math.max(el.clientWidth, el.clientHeight)
+    const rect = el.getBoundingClientRect()
+
+    circle.style.cssText = `
+      width:${d}px; height:${d}px;
+      left:${event.clientX - rect.left - d / 2}px;
+      top:${event.clientY - rect.top - d / 2}px;
+    `
+    circle.classList.add('ripple-effect')
+    el.classList.add('ripple-container')
+    el.querySelector('.ripple-effect')?.remove()
+    el.appendChild(circle)
     setTimeout(() => circle.remove(), 600)
   }
+
   return { createRipple }
 }

@@ -1,18 +1,18 @@
 <template>
-  <div class="bg-white border-y border-gray-200 py-4">
+  <div class="bg-[var(--dark-2)] border-y border-white/10 py-4">
     <div class="container mx-auto px-4">
-      <div class="flex gap-3 overflow-x-auto scrollbar-hide">
+      <div class="flex gap-3 overflow-x-auto scrollbar-hide pb-1">
         <button
-          v-for="category in categories"
-          :key="category.value"
-          @click="selectCategory(category.value)"
-          class="flex-shrink-0 flex items-center gap-2 px-6 py-3 rounded-full font-medium transition-all"
-          :class="activeCategory === category.value
-            ? 'bg-black text-white'
-            : 'bg-gray-100 text-gray-900 hover:bg-gray-200'"
+          v-for="cat in categories"
+          :key="String(cat.value)"
+          @click="emit('select', cat.value)"
+          class="flex-shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-full font-bold text-xs tracking-widest uppercase transition-all duration-300"
+          :class="activeCategory === cat.value
+            ? 'bg-gradient-to-r from-[#ff6b00] to-[#ff2d78] text-white shadow-[0_0_20px_rgba(255,107,0,0.4)] scale-105'
+            : 'bg-white/5 text-gray-400 border border-white/10 hover:bg-white/10 hover:text-white'"
         >
-          <span class="text-xl">{{ category.icon }}</span>
-          <span class="whitespace-nowrap">{{ category.label }}</span>
+          <span class="text-base">{{ cat.icon }}</span>
+          <span class="whitespace-nowrap">{{ cat.label }}</span>
         </button>
       </div>
     </div>
@@ -20,13 +20,7 @@
 </template>
 
 <script setup>
-const props = defineProps({
-  activeCategory: {
-    type: String,
-    default: null
-  }
-})
-
+defineProps({ activeCategory: { type: String, default: null } })
 const emit = defineEmits(['select'])
 
 const categories = [
@@ -36,25 +30,12 @@ const categories = [
   { value: 'Joggers', label: 'Joggers', icon: '👖' },
   { value: 'Shorts', label: 'Shorts', icon: '🩳' },
   { value: 'Hoodies', label: 'Hoodies', icon: '🧥' },
-  { value: 'Jackets', label: 'Jackets', icon: '🧥' },
-  { value: 'Sneakers', label: 'Sneakers', icon: '👟' },
-  { value: 'Track Pants', label: 'Track Pants', icon: '👖' }
+  { value: 'Jackets', label: 'Jackets', icon: '🧤' },
+  { value: 'Sneakers', label: 'Sneakers', icon: '👟' }
 ]
-
-const selectCategory = (value) => {
-  emit('select', value)
-}
 </script>
 
 <style scoped>
-/* Hide scrollbar for Chrome, Safari and Opera */
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
-}
-
-/* Hide scrollbar for IE, Edge and Firefox */
-.scrollbar-hide {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 </style>
